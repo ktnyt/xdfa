@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include <xtensor/xarray.hpp>
 
@@ -19,7 +20,7 @@ int reverse_int(int i) {
 }
 
 template <class T>
-xt::xarray<T> read_images(const char* path) {
+xt::xarray<T> read_images(const char* path, bool flatten = false) {
   std::ifstream file(path, std::ios::binary);
   if (!file.is_open()) {
     std::cerr << "failed to open image file: " << path << std::endl;
@@ -57,10 +58,10 @@ xt::xarray<T> read_images(const char* path) {
     n_cols = reverse_int(n_cols);
   }
 
-  xt::xarray<T> array(
-      {static_cast<std::size_t>(n_images), static_cast<std::size_t>(n_rows),
-       static_cast<std::size_t>(n_cols)},
-      xt::layout_type::dynamic);
+  std::vector<std::size_t> shape({static_cast<std::size_t>(n_images),
+                                  static_cast<std::size_t>(n_rows),
+                                  static_cast<std::size_t>(n_cols)});
+  xt::xarray<T> array(shape);
 
   for (int i = 0; i < n_images; ++i) {
     for (int r = 0; r < n_rows; ++r) {
@@ -70,6 +71,11 @@ xt::xarray<T> read_images(const char* path) {
         array(i, r, c) = static_cast<T>(tmp);
       }
     }
+  }
+
+  if (flatten) {
+    array.reshape({static_cast<std::size_t>(n_images),
+                   static_cast<std::size_t>(n_rows * n_cols)});
   }
 
   return array;
@@ -103,8 +109,8 @@ xt::xarray<T> read_labels(const char* path) {
     n_labels = reverse_int(n_labels);
   }
 
-  xt::xarray<T> array({static_cast<std::size_t>(n_labels)},
-                      xt::layout_type::dynamic);
+  std::vector<std::size_t> shape({static_cast<std::size_t>(n_labels)});
+  xt::xarray<T> array(shape);
 
   for (int i = 0; i < n_labels; ++i) {
     unsigned char tmp;
