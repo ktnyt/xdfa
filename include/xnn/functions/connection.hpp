@@ -1,13 +1,13 @@
-#ifndef __XDFA_CONNECTION_HPP__
-#define __XDFA_CONNECTION_HPP__
+#ifndef __XNN_CONNECTION_HPP__
+#define __XNN_CONNECTION_HPP__
 
-#include "xdfa/function.hpp"
-#include "xdfa/types.hpp"
-#include "xdfa/utils.hpp"
+#include "xnn/function.hpp"
+#include "xnn/initializers.hpp"
+#include "xnn/types.hpp"
 
 #include "xtensor-blas/xlinalg.hpp"
 
-namespace xdfa {
+namespace xnn {
 
 class Layer final : public Function {
  public:
@@ -41,6 +41,6 @@ class Feedback final : public Function {
   Arrayf w;
 };
 
-}  // namespace xdfa
+}  // namespace xnn
 
-#endif  // __XDFA_CONNECTION_HPP__
+#endif  // __XNN_CONNECTION_HPP__

@@ -1,15 +1,15 @@
-#ifndef __XDFA_TYPES_HPP__
-#define __XDFA_TYPES_HPP__
+#ifndef __XNN_TYPES_HPP__
+#define __XNN_TYPES_HPP__
 
 #include "xtensor/xarray.hpp"
 
-namespace xdfa {
+namespace xnn {
 
 using Expression = xt::xexpression<float>;
 using Arrayf = xt::xarray<float>;
 using Arrayi = xt::xarray<int>;
 using Arrayu = xt::xarray<unsigned int>;
 
-}  // namespace xdfa
+}  // namespace xnn
 
-#endif  // __XDFA_TYPES_HPP__
+#endif  // __XNN_TYPES_HPP__

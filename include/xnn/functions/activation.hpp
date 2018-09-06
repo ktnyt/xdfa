@@ -1,13 +1,13 @@
-#ifndef __XDFA_ACTIVATION_HPP__
-#define __XDFA_ACTIVATION_HPP__
+#ifndef __XNN_ACTIVATION_HPP__
+#define __XNN_ACTIVATION_HPP__
 
-#include "xdfa/function.hpp"
-#include "xdfa/utils.hpp"
+#include "xnn/function.hpp"
+#include "xnn/utils.hpp"
 
 #include "xtensor/xindex_view.hpp"
 #include "xtensor/xmath.hpp"
 
-namespace xdfa {
+namespace xnn {
 
 Arrayf sigmoid(Arrayf x) { return xt::tanh(x * 0.5) * 0.5 + 0.5; }
 Arrayf dsigmoid(Arrayf y) { return y * (1.0 - y); }
@@ -58,6 +58,6 @@ class SoftmaxCrossEntropy final : public Function {
   Arrayf memory;
 };
 
-}  // namespace xdfa
+}  // namespace xnn
 
-#endif  // __XDFA_ACTIVATION_HPP__
+#endif  // __XNN_ACTIVATION_HPP__

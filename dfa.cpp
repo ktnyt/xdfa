@@ -3,10 +3,10 @@
 #include <iostream>
 #include <vector>
 
-#include "mnist.hpp"
-#include "xdfa/xdfa.hpp"
+#include "xnn/loaders/mnist.hpp"
+#include "xnn/xnn.hpp"
 
-using namespace xdfa;
+using namespace xnn;
 
 int main() {
   auto train_images_path = "mnist/train-images-idx3-ubyte";

@@ -1,12 +1,12 @@
-#ifndef __XDFA_UTILS_HPP__
-#define __XDFA_UTILS_HPP__
+#ifndef __XNN_UTILS_HPP__
+#define __XNN_UTILS_HPP__
 
-#include "xdfa/function.hpp"
-#include "xdfa/types.hpp"
+#include "xnn/function.hpp"
+#include "xnn/types.hpp"
 
 #include "xtensor/xrandom.hpp"
 
-namespace xdfa {
+namespace xnn {
 
 std::vector<std::vector<int>> indices(Arrayi t) {
   std::vector<std::vector<int>> ret;
@@ -14,12 +14,6 @@ std::vector<std::vector<int>> indices(Arrayi t) {
     ret.push_back({i, t[i]});
   }
   return ret;
-}
-
-Arrayf LeCunNormal(std::size_t n_input, std::size_t n_output) {
-  static constexpr float mean = 0.0;
-  float stddev = 1.0 / std::sqrt(static_cast<float>(n_input));
-  return xt::random::randn({n_input, n_output}, mean, stddev);
 }
 
 class Combine final : public Function {
@@ -46,6 +40,6 @@ class Combine final : public Function {
   std::vector<Function*> functions;
 };
 
-}  // namespace xdfa
+}  // namespace xnn
 
-#endif  // __XDFA_UTILS_HPP__
+#endif  // __XNN_UTILS_HPP__
