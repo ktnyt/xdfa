@@ -35,6 +35,14 @@ int main() {
     Arrayf loss = 0.0;
     Arrayf acc = 0.0;
 
+    xt::random::seed(epoch);
+    xt::random::shuffle(x_train);
+
+    t_train.resize({n_train, 1});
+    xt::random::seed(epoch);
+    xt::random::shuffle(t_train);
+    t_train.resize({n_train});
+
     for (std::size_t i = 0; i < n_train; i += batchsize) {
       Arrayf x = xt::view(x_train, xt::range(i, i + batchsize));
       Arrayf t = xt::view(t_train, xt::range(i, i + batchsize));
