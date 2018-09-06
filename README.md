@@ -1,2 +1,2 @@
-# xdfa
-DFA implementation based on xtensor.
+# xnn
+Experimental neural network library using xtensor.
