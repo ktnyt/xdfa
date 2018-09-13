@@ -3,17 +3,22 @@
 #include <iostream>
 #include <vector>
 
-#include "xnn/loaders/mnist.hpp"
-#include "xnn/xnn.hpp"
+#include "xnn/functions.hpp"
+#include "xnn/optimizers.hpp"
 
-using namespace xnn;
+#include "xnn/loaders/mnist.hpp"
+
+namespace F = xnn::functions;
+namespace O = xnn::optimizers;
+
+using namespace xnn::loaders;
 
 int main() {
-  auto train_images_path = "mnist/train-images-idx3-ubyte";
-  auto train_labels_path = "mnist/train-labels-idx1-ubyte";
+  auto train_image_path = "mnist/train-images-idx3-ubyte";
+  auto train_label_path = "mnist/train-labels-idx1-ubyte";
 
-  Arrayf x_train = mnist::read_images<float>(train_images_path, true);
-  Arrayi t_train = mnist::read_labels<int>(train_labels_path);
+  xt::xarray<float> x_train = mnist::read_images<float>(train_image_path, true);
+  xt::xarray<int> t_train = mnist::read_labels<int>(train_label_path);
 
   auto x_shape = x_train.shape();
   std::size_t n_train = x_shape[0];
@@ -22,18 +27,19 @@ int main() {
   std::size_t n_epochs = 20;
   std::size_t batchsize = 100;
 
-  Layer l0(n_dims, 240);
-  Layer l1(240, 10);
-  Sigmoid a0;
-  SoftmaxCrossEntropy error;
+  F::Linear<float> l0(n_dims, 240);
+  F::Linear<float> l1(240, 10);
+  F::Sigmoid<float> a0;
+  F::SoftmaxCrossEntropy<float, int> error;
 
-  Combine network({&l0, &a0, &l1});
+  O::AdamRule<float> o0;
+  O::AdamRule<float> o1;
 
   for (std::size_t epoch = 0; epoch < n_epochs; ++epoch) {
     std::cout << "Epoch " << epoch << std::flush;
 
-    Arrayf loss = 0.0;
-    Arrayf acc = 0.0;
+    xt::xarray<float> loss = 0.0;
+    xt::xarray<float> acc = 0.0;
 
     xt::random::seed(epoch);
     xt::random::shuffle(x_train);
@@ -44,15 +50,21 @@ int main() {
     t_train.resize({n_train});
 
     for (std::size_t i = 0; i < n_train; i += batchsize) {
-      Arrayf x = xt::view(x_train, xt::range(i, i + batchsize));
-      Arrayf t = xt::view(t_train, xt::range(i, i + batchsize));
+      xt::xarray<float> x = xt::view(x_train, xt::range(i, i + batchsize));
+      xt::xarray<int> t = xt::view(t_train, xt::range(i, i + batchsize));
 
-      Arrayf y = network.forward(x);
+      xt::xarray<float> a = l0(x);
+      xt::xarray<float> h = a0(a);
+      xt::xarray<float> y = l1(h);
 
-      loss += error.with(t).forward(y) * batchsize;
-      acc += accuracy(t, y) * batchsize;
+      loss += error.with(t)(y) * batchsize;
+      acc += F::accuracy(t, y) * batchsize;
 
-      network.backward(error.grads());
+      xt::xarray<float> dy = error.grads();
+      xt::xarray<float> dh = l1.derivative(dy);
+      xt::xarray<float> da = a0.derivative(dh);
+      l0.update(o0.diff(da));
+      l1.update(o1.diff(dy));
     }
 
     std::cout << " Loss: " << loss / n_train << " Accuracy: " << acc / n_train

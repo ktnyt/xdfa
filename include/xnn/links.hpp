@@ -38,19 +38,19 @@ class Link {
   virtual Variable operator()(Variable x) = 0;
 };
 
-template <class F, Retain R>
+template <class F>
 class Link {
   using T = typename F::value_type;
 
  public:
-  Link(F g) : f(g) {}
+  Link(F f, Retain f) : f(g), r(r) {}
 
   xt::array<T> forward(xt::array<T> x) {
     xt::array<T> y = f(x);
-    if (R == Retain::INPUT) {
+    if (r == Retain::INPUT) {
       history.push(x);
     }
-    if (R == Retain::OUTPUT) {
+    if (r == Retain::OUTPUT) {
       history.push(y);
     }
     return y;
@@ -62,6 +62,7 @@ class Link {
 
  private:
   F f;
+  Retain r;
   Queue<xt::xarray<T>> history;
 };
 
@@ -71,13 +72,6 @@ class Link<Derivable, R> {
   Link(Derivable g) : f(g) {}
 
  private:
-};
-
-template <class T>
-class Sigmoid {
- public:
- private:
-  st::queue<xt::xarray<T>>
 };
 
 }  // namespace links
