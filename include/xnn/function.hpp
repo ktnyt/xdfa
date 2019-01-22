@@ -1,16 +1,21 @@
 #ifndef __XNN_FUNCTION_HPP__
 #define __XNN_FUNCTION_HPP__
 
-#include "xnn/types.hpp"
+#include "xtensor/xarray.hpp"
+
+#include <functional>
 
 namespace xnn {
 
-class Function {
- public:
-  virtual Arrayf forward(Arrayf) = 0;
-  virtual Arrayf backward(Arrayf) = 0;
+template <class T> class Function {
+public:
+  virtual xt::xarray<T> forward(xt::xarray<T>) = 0;
+  virtual xt::xarray<T> backward(xt::xarray<T>) = 0;
+  virtual void update(){};
+
+  xt::xarray<T> operator()(xt::xarray<T> x) { return forward(x); }
 };
 
-}  // namespace xnn
+} // namespace xnn
 
-#endif  // __XNN_FUNCTION_HPP__
+#endif // __XNN_FUNCTION_HPP__
