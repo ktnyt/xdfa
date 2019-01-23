@@ -16,6 +16,7 @@ public:
     virtual xt::xarray<T> forward(xt::xarray<T>) = 0;
     virtual xt::xarray<T> backward(xt::xarray<T>) = 0;
     virtual void update(){};
+    // virtual Impl clone() = 0;
   };
 
   template <class U>
@@ -23,6 +24,7 @@ public:
   xt::xarray<T> forward(xt::xarray<T> x) { return ptr->forward(x); }
   xt::xarray<T> backward(xt::xarray<T> dy) { return ptr->backward(dy); }
   void update() { ptr->update(); };
+  // Function clone() { return Function(ptr->clone(); }
 
   std::shared_ptr<Impl> get() const { return ptr; }
 

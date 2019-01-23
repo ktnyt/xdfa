@@ -1,18 +1,15 @@
-#ifndef __XNN_FUNCTIONS_MISCELLANEOUS_SERIAL_HPP__
-#define __XNN_FUNCTIONS_MISCELLANEOUS_SERIAL_HPP__
+#ifndef __XNN_FUNCTIONS_MISCELLANEOUS_DIRECT_FEEDBACK_HPP__
+#define __XNN_FUNCTIONS_MISCELLANEOUS_DIRECT_FEEDBACK_HPP__
 
 #include "xnn/function.hpp"
 #include "xnn/functions/miscellaneous/utils.hpp"
-
-#include <memory>
-#include <vector>
 
 namespace xnn {
 namespace functions {
 namespace miscellaneous {
 
-template <class T> class Serial final : public Function<T> {
-  class Impl : public Function<T>::Impl {
+template <class T> class DirectFeedback final : public Function<T> {
+  class Impl : public Function<float>::Impl {
   public:
     template <class Iterable>
     Impl(Iterable iterable) : impls(iterable.begin(), iterable.end()) {}
@@ -27,12 +24,11 @@ template <class T> class Serial final : public Function<T> {
     }
 
     xt::xarray<T> backward(xt::xarray<T> dy) override {
-      xt::xarray<T> dx = dy;
-      for (auto impl = impls.rbegin(); impl != impls.rend(); ++impl) {
+      for (auto impl = impls.begin(); impl != impls.end(); ++impl) {
         auto f = impl->get();
-        dx = f->backward(dx);
+        f->backward(dy);
       }
-      return dx;
+      return dy;
     }
 
     void update() override {
@@ -48,7 +44,7 @@ template <class T> class Serial final : public Function<T> {
 
 public:
   template <class... Args>
-  Serial(Args &&... args)
+  DirectFeedback(Args &&... args)
       : Function<T>(std::shared_ptr<Impl>(
             new Impl(to_impl<T>(std::forward<Args>(args)...)))) {}
 };
@@ -57,4 +53,4 @@ public:
 } // namespace functions
 } // namespace xnn
 
-#endif // __XNN_FUNCTIONS_MISCELLANEOUS_SERIAL_HPP__
+#endif // __XNN_FUNCTIONS_MISCELLANEOUS_DIRECT_FEEDBACK_HPP__

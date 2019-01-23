@@ -6,6 +6,7 @@
 #include "xnn/optimizer.hpp"
 
 #include "xtensor-blas/xlinalg.hpp"
+#include "xtensor/xarray.hpp"
 #include "xtensor/xbuilder.hpp"
 #include "xtensor/xmath.hpp"
 
@@ -16,7 +17,6 @@ namespace functions {
 namespace connection {
 
 class Linear final : public Function<float> {
-public:
   class Impl final : public Function<float>::Impl {
   public:
     Impl(std::size_t n_input, std::size_t n_output, Updater<float> rule)
@@ -53,6 +53,7 @@ public:
     std::queue<xt::xarray<float>> backward_queue;
   };
 
+public:
   Linear(std::size_t n_input, std::size_t n_output, Updater<float> rule)
       : Function<float>(std::make_shared<Impl>(n_input, n_output, rule)) {}
 };
