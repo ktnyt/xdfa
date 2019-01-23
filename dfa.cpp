@@ -36,7 +36,7 @@ int main() {
   xfc::Linear l1(n_hidden, 10, xop::Adam());
   xfa::Sigmoid a0;
   xfl::SoftmaxCrossEntropy error;
-  xfm::Serial<float> network({&l0, &a0, &l1});
+  xfm::Serial<float> network(l0, a0, l1);
 
   for (std::size_t epoch = 0; epoch < n_epochs; ++epoch) {
     std::cout << "Epoch " << epoch << std::flush;

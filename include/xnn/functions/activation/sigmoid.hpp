@@ -12,20 +12,25 @@ namespace functions {
 namespace activation {
 
 class Sigmoid final : public Function<float> {
+  class Impl final : public Function<float>::Impl {
+  public:
+    xt::xarray<float> forward(xt::xarray<float> x) override {
+      queue.push(xt::tanh(x * 0.5) * 0.5 + 0.5);
+      return queue.front();
+    }
+
+    xt::xarray<float> backward(xt::xarray<float> d) override {
+      xt::xarray<float> y = queue.front();
+      queue.pop();
+      return d * y * (1.0 - y);
+    }
+
+  private:
+    std::queue<xt::xarray<float>> queue;
+  };
+
 public:
-  xt::xarray<float> forward(xt::xarray<float> x) override {
-    queue.push(xt::tanh(x * 0.5) * 0.5 + 0.5);
-    return queue.front();
-  }
-
-  xt::xarray<float> backward(xt::xarray<float> d) override {
-    xt::xarray<float> y = queue.front();
-    queue.pop();
-    return d * y * (1.0 - y);
-  }
-
-private:
-  std::queue<xt::xarray<float>> queue;
+  Sigmoid() : Function<float>(std::make_shared<Impl>()) {}
 };
 
 } // namespace activation

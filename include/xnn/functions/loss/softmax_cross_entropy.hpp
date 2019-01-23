@@ -4,8 +4,8 @@
 #include "xnn/function.hpp"
 
 #include "xtensor/xindex_view.hpp"
-#include "xtensor/xindex_view.hpp"
 
+#include <memory>
 #include <vector>
 
 namespace xnn {
@@ -32,35 +32,44 @@ std::vector<std::vector<int>> indices(xt::xarray<int> t) {
 } // namespace internal
 
 class SoftmaxCrossEntropy : public Function<float> {
+  class Impl final : public Function<float>::Impl {
+  public:
+    void set_labels(xt::xarray<int> t) { labels = t; }
+
+    xt::xarray<float> forward(xt::xarray<float> x) override {
+      using namespace internal;
+      memory = softmax(x);
+      auto idx = indices(labels);
+      auto y = xt::index_view(memory, idx);
+      return xt::mean(-xt::log(y));
+    }
+
+    xt::xarray<float> backward(xt::xarray<float> x) override {
+      using namespace internal;
+      auto idx = indices(labels);
+      auto p = memory;
+      xt::index_view(p, idx) -= 1;
+      return p / labels.shape()[0];
+    }
+
+  private:
+    xt::xarray<int> labels;
+    xt::xarray<float> memory;
+  };
+
 public:
-  void set_labels(xt::xarray<int> t) { labels = t; }
+  SoftmaxCrossEntropy() : Function<float>(std::make_shared<Impl>()) {}
 
   SoftmaxCrossEntropy &with(xt::xarray<int> t) {
-    set_labels(t);
+    auto impl = std::dynamic_pointer_cast<Impl>(ptr);
+    impl->set_labels(t);
     return *this;
   }
 
-  xt::xarray<float> forward(xt::xarray<float> x) override {
-    using namespace internal;
-    memory = softmax(x);
-    auto idx = indices(labels);
-    auto y = xt::index_view(memory, idx);
-    return xt::mean(-xt::log(y));
+  xt::xarray<float> grads() {
+    auto impl = std::dynamic_pointer_cast<Impl>(ptr);
+    return impl->backward(0.0);
   }
-
-  xt::xarray<float> backward(xt::xarray<float> x) override {
-    using namespace internal;
-    auto idx = indices(labels);
-    auto p = memory;
-    xt::index_view(p, idx) -= 1;
-    return p / labels.shape()[0];
-  }
-
-  xt::xarray<float> grads() { return backward(0.0); }
-
-private:
-  xt::xarray<int> labels;
-  xt::xarray<float> memory;
 };
 
 } // namespace loss
