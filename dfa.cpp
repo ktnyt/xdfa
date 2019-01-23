@@ -36,7 +36,7 @@ int main() {
   xfc::Linear l1(n_hidden, 10, xop::Adam());
   xfa::Sigmoid a0;
   xfl::SoftmaxCrossEntropy error;
-  xfm::Combine<float> network({&l0, &a0, &l1});
+  xfm::Serial<float> network({&l0, &a0, &l1});
 
   for (std::size_t epoch = 0; epoch < n_epochs; ++epoch) {
     std::cout << "Epoch " << epoch << std::flush;
@@ -53,6 +53,8 @@ int main() {
     t_train.resize({n_train});
 
     for (std::size_t i = 0; i < n_train; i += batchsize) {
+      std::cout << "\rEpoch " << epoch << " " << std::right << std::setfill('0')
+                << std::setw(5) << i + batchsize << " / " << n_train << std::flush;
       xt::xarray<float> x = xt::view(x_train, xt::range(i, i + batchsize));
       xt::xarray<float> t = xt::view(t_train, xt::range(i, i + batchsize));
 
@@ -65,7 +67,7 @@ int main() {
       network.update();
     }
 
-    std::cout << " Loss: " << loss / n_train << " Accuracy: " << acc / n_train
+    std::cout << "\rEpoch Loss: " << loss / n_train << " Accuracy: " << acc / n_train
               << std::endl;
   }
 

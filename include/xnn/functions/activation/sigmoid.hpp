@@ -5,6 +5,8 @@
 
 #include "xtensor/xmath.hpp"
 
+#include <queue>
+
 namespace xnn {
 namespace functions {
 namespace activation {
@@ -12,15 +14,18 @@ namespace activation {
 class Sigmoid final : public Function<float> {
 public:
   xt::xarray<float> forward(xt::xarray<float> x) override {
-    return memory = xt::tanh(x * 0.5) * 0.5 + 0.5;
+    queue.push(xt::tanh(x * 0.5) * 0.5 + 0.5);
+    return queue.front();
   }
 
   xt::xarray<float> backward(xt::xarray<float> d) override {
-    return d * memory * (1.0 - memory);
+    xt::xarray<float> y = queue.front();
+    queue.pop();
+    return d * y * (1.0 - y);
   }
 
 private:
-  xt::xarray<float> memory;
+  std::queue<xt::xarray<float>> queue;
 };
 
 } // namespace activation
