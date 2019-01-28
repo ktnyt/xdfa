@@ -3,7 +3,7 @@
 
 #include "xnn/functions/connection/linear.hpp"
 #include "xnn/functions/miscellaneous/feedback_layer.hpp"
-#include "xnn/initializers/matrix.hpp"
+#include "xnn/initializers.hpp"
 
 #include "xtensor-blas/xlinalg.hpp"
 
@@ -15,7 +15,7 @@ namespace internal {
 class linear_feedback {
 public:
   linear_feedback(std::size_t n_input, std::size_t n_output)
-      : B(initializers::LeCunNormal(n_input, n_output)()) {}
+      : B(initializers::LeCunNormal()({n_input, n_output})) {}
 
   xt::xarray<float> operator()(xt::xarray<float> x) {
     return xt::linalg::dot(x, B);

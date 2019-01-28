@@ -7,7 +7,6 @@
 #include "xtensor/xarray.hpp"
 
 #include "xnn/functions.hpp"
-#include "xnn/initializers/matrix.hpp"
 #include "xnn/loaders/mnist.hpp"
 #include "xnn/optimizers.hpp"
 

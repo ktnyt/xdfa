@@ -2,7 +2,7 @@
 #define __XNN_FUNCTIONS_CONNECTION_LINEAR_HPP__
 
 #include "xnn/function.hpp"
-#include "xnn/initializers/matrix.hpp"
+#include "xnn/initializers.hpp"
 #include "xnn/optimizer.hpp"
 
 #include "xtensor-blas/xlinalg.hpp"
@@ -20,7 +20,7 @@ class Linear final : public Function<float> {
   class Impl final : public Function<float>::Impl {
   public:
     Impl(std::size_t n_input, std::size_t n_output, Updater<float> rule)
-        : W(initializers::LeCunNormal(n_input, n_output)()),
+        : W(initializers::LeCunNormal()({n_input, n_output})),
           b(xt::zeros<float>({n_output})), rule(rule) {}
 
     xt::xarray<float> forward(xt::xarray<float> x) override {
