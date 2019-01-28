@@ -9,5 +9,6 @@
 #include "xnn/initializers.hpp"
 #include "xnn/optimizer.hpp"
 #include "xnn/optimizers.hpp"
+#include "xnn/utils.hpp"
 
 #endif  // __XNN_XNN_HPP__

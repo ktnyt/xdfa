@@ -14,16 +14,28 @@
 namespace xnn {
 namespace utils {
 
-std::size_t get_conv_out_dim(
+std::size_t get_conv_outsize(
     std::size_t size,
     std::size_t k,
     std::size_t s,
     std::size_t p,
     bool cover_all = false) {
   if (cover_all) {
-    return (size + p * 2 - k + s - 1) / s + 1:
+    return (size + p * 2 - k + s - 1) / s + 1;
   }
-  return (size + p * 2 - k) / s + 1:
+  return (size + p * 2 - k) / s + 1;
+}
+
+std::size_t get_deconv_outsize(
+    std::size_t size,
+    std::size_t k,
+    std::size_t s,
+    std::size_t p,
+    bool cover_all = false) {
+  if (cover_all) {
+    return s * (size - 1) + k - s + 1 - 2 * p;
+  }
+  return s * (size - 1) + k - 2 * p;
 }
 
 /* TODO Nd-Convolution
@@ -60,7 +72,7 @@ xt::xarray<T> im2col(xt::xarray<T> x, std::vector<std::size_t> kernel_size,
     padded_shape[i + 2] += pad[i] * 2 + (cover_all ? stride[i] - 1 : 0);
     slices.push_back(xt::range(pad[i], pad[i] + x.shape()[i + 2]));
   }
-  xt::array<T> padded_x = xt::zeros<T>(padded_shape) + pad_value;
+  xt::xarray<T> padded_x = xt::zeros<T>(padded_shape) + pad_value;
   xt::strided_view(padded_x, slices) = x;
 
   std::vector<std::size_t> out_dims;
@@ -109,7 +121,7 @@ xt::xarray<T> im2col(
   padded_shape[2] += ph * 2 + (cover_all ? sy - 1 : 0);
   padded_shape[3] += pw * 2 + (cover_all ? sx - 1 : 0);
 
-  xt::array<T> tmp = xt::zeros<T>(padded_shape) + padding_value;
+  xt::xarray<T> tmp = xt::zeros<T>(padded_shape) + padding_value;
   xt::view(
       tmp, xt::all(), xt::all(), xt::range(ph, ph + h), xt::range(pw, pw + w)) =
       img;
@@ -119,13 +131,13 @@ xt::xarray<T> im2col(
 
   std::vector<std::size_t> out_shape = {n, c, kh, kw, out_h, out_w};
 
-  xt::xarray<T> out(out_shape);
+  xt::xarray<T> col(out_shape);
 
-  for (std::size_t j = 0; j < kh : ++j) {
+  for (std::size_t j = 0; j < kh; ++j) {
     std::size_t j_lim = j + sy * out_h;
     for (std::size_t i = 0; i < kw; ++i) {
       std::size_t i_lim = i + sx * out_w;
-      xt::view(out, xt::all(), xt::all(), j, i, xt::all(), xt::all()) =
+      xt::view(col, xt::all(), xt::all(), j, i, xt::all(), xt::all()) =
           xt::view(
               tmp,
               xt::all(),
@@ -135,7 +147,44 @@ xt::xarray<T> im2col(
     }
   }
 
-  return out;
+  return col;
+}
+
+template <class T>
+xt::xarray<T> col2im(
+    xt::xarray<T> col,
+    std::size_t sy,
+    std::size_t sx,
+    std::size_t ph,
+    std::size_t pw,
+    std::size_t h,
+    std::size_t w) {
+  std::size_t n = col.shape()[0];
+  std::size_t c = col.shape()[1];
+  std::size_t kh = col.shape()[2];
+  std::size_t kw = col.shape()[3];
+  std::size_t out_h = col.shape()[4];
+  std::size_t out_w = col.shape()[5];
+
+  std::vector<std::size_t> shape = {
+      n, c, h + 2 * ph + sy - 1, w + 2 * pw + sx - 1};
+  xt::xarray<T> img(shape);
+
+  for (std::size_t j = 0; j < kh; ++j) {
+    std::size_t j_lim = j + sy * out_h;
+    for (std::size_t i = 0; i < kw; ++i) {
+      std::size_t i_lim = i + sx * out_w;
+      xt::view(
+          img,
+          xt::all(),
+          xt::all(),
+          xt::range(j, j_lim, sy),
+          xt::range(i, i_lim, sx)) = xt::view(col, xt::all(), xt::all(), j, i);
+    }
+  }
+
+  return xt::view(
+      img, xt::all(), xt::all(), xt::range(ph, h + ph), xt::range(pw, w + pw));
 }
 
 }  // namespace utils

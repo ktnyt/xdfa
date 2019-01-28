@@ -12,7 +12,7 @@ namespace xnn {
 namespace functions {
 namespace loss {
 
-class CrossEntropy : public Function<float> {
+class CrossEntropy final : public Function<float> {
  public:
   CrossEntropy(xt::xarray<int>& t) : t(t) {}
 

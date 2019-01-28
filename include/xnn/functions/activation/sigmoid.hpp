@@ -7,7 +7,7 @@ namespace xnn {
 namespace functions {
 namespace activation {
 
-class Sigmoid : public Function<float> {
+class Sigmoid final : public Function<float> {
  public:
   xt::xarray<float> operator()(xt::xarray<float> x) {
     return xt::tanh(x * 0.5) * 0.5 + 0.5;
