@@ -1,19 +1,20 @@
-#ifndef __XNN_FUNCTIONS_MISCELLANEOUS_SERIAL_HPP__
-#define __XNN_FUNCTIONS_MISCELLANEOUS_SERIAL_HPP__
+#ifndef __XNN_LAYERS_MISCELLANEOUS_SERIAL_HPP__
+#define __XNN_LAYERS_MISCELLANEOUS_SERIAL_HPP__
 
-#include "xnn/function.hpp"
-#include "xnn/functions/miscellaneous/utils.hpp"
+#include "xnn/layer.hpp"
+#include "xnn/utils/helpers.hpp"
 
 #include <memory>
 #include <vector>
 
 namespace xnn {
-namespace functions {
+namespace layers {
 namespace miscellaneous {
 
-template <class T> class Serial final : public Function<T> {
-  class Impl : public Function<T>::Impl {
-  public:
+template <class T>
+class Serial final : public Layer<T> {
+  class Impl : public Layer<T>::Impl {
+   public:
     template <class Iterable>
     Impl(Iterable iterable) : impls(iterable.begin(), iterable.end()) {}
 
@@ -42,19 +43,19 @@ template <class T> class Serial final : public Function<T> {
       }
     }
 
-  private:
-    std::vector<std::shared_ptr<typename Function<T>::Impl>> impls;
+   private:
+    std::vector<std::shared_ptr<typename Layer<T>::Impl>> impls;
   };
 
-public:
+ public:
   template <class... Args>
-  Serial(Args &&... args)
-      : Function<T>(std::shared_ptr<Impl>(
-            new Impl(to_impl<T>(std::forward<Args>(args)...)))) {}
+  Serial(Args... args)
+      : Layer<T>(std::shared_ptr<Impl>(
+            new Impl(utils::to_impl<T>(std::forward<Args>(args)...)))) {}
 };
 
-} // namespace miscellaneous
-} // namespace functions
-} // namespace xnn
+}  // namespace miscellaneous
+}  // namespace layers
+}  // namespace xnn
 
-#endif // __XNN_FUNCTIONS_MISCELLANEOUS_SERIAL_HPP__
+#endif  // __XNN_LAYERS_MISCELLANEOUS_SERIAL_HPP__

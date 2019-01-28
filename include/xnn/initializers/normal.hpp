@@ -13,7 +13,7 @@ namespace initializers {
 class LeCunNormal final : public Initializer<float> {
   static constexpr float mean = 0.0;
 
-public:
+ public:
   LeCunNormal(float scale = 1.0) : scale(scale) {}
 
   xt::xarray<float> operator()(std::vector<std::size_t> shape) override {
@@ -24,12 +24,12 @@ public:
     return xt::random::randn(shape, 0.0f, stddev);
   }
 
-private:
+ private:
   float scale;
   float stddev;
 };
 
-} // namespace initializers
-} // namespace xnn
+}  // namespace initializers
+}  // namespace xnn
 
-#endif // __XNN_INITIALIZERS_NORMAL_HPP__
+#endif  // __XNN_INITIALIZERS_NORMAL_HPP__

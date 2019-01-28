@@ -1,21 +1,24 @@
-#ifndef __XNN_FUNCTIONS_MISCELLANEOUS_FEEDBACK_LAYER_HPP__
-#define __XNN_FUNCTIONS_MISCELLANEOUS_FEEDBACK_LAYER_HPP__
+#ifndef __XNN_LAYERS_MISCELLANEOUS_FEEDBACK_LAYER_HPP__
+#define __XNN_LAYERS_MISCELLANEOUS_FEEDBACK_LAYER_HPP__
 
-#include "xnn/function.hpp"
+#include "xnn/layer.hpp"
 
 #include "xtensor/xarray.hpp"
 
 #include <functional>
 
 namespace xnn {
-namespace functions {
+namespace layers {
 namespace miscellaneous {
 
-class FeedbackLayer : public Function<float> {
-  template <class C, class A> class Impl final : public Function<float>::Impl {
-  public:
-    Impl(C connection, A activation,
-         std::function<xt::xarray<float>(xt::xarray<float>)> feedback)
+class FeedbackLayer : public Layer<float> {
+  template <class C, class A>
+  class Impl final : public Layer<float>::Impl {
+   public:
+    Impl(
+        C connection,
+        A activation,
+        std::function<xt::xarray<float>(xt::xarray<float>)> feedback)
         : connection(connection), activation(activation), feedback(feedback) {}
 
     xt::xarray<float> forward(xt::xarray<float> x) override {
@@ -28,22 +31,24 @@ class FeedbackLayer : public Function<float> {
 
     void update() override { connection.update(); }
 
-  private:
+   private:
     C connection;
     A activation;
     std::function<xt::xarray<float>(xt::xarray<float>)> feedback;
   };
 
-public:
+ public:
   template <class C, class A>
-  FeedbackLayer(C connection, A activation,
-                std::function<xt::xarray<float>(xt::xarray<float>)> feedback)
-      : Function<float>(
+  FeedbackLayer(
+      C connection,
+      A activation,
+      std::function<xt::xarray<float>(xt::xarray<float>)> feedback)
+      : Layer<float>(
             std::make_shared<Impl<C, A>>(connection, activation, feedback)) {}
 };
 
-} // namespace miscellaneous
-} // namespace functions
-} // namespace xnn
+}  // namespace miscellaneous
+}  // namespace layers
+}  // namespace xnn
 
-#endif // __XNN_FUNCTIONS_MISCELLANEOUS_FEEDBACK_LAYER_HPP__
+#endif  // __XNN_LAYERS_MISCELLANEOUS_FEEDBACK_LAYER_HPP__

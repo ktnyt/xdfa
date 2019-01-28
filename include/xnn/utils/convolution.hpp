@@ -14,8 +14,12 @@
 namespace xnn {
 namespace utils {
 
-std::size_t get_conv_out_dim(std::size_t size, std::size_t k, std::size_t s,
-                             std::size_t p, bool cover_all = false) {
+std::size_t get_conv_out_dim(
+    std::size_t size,
+    std::size_t k,
+    std::size_t s,
+    std::size_t p,
+    bool cover_all = false) {
   if (cover_all) {
     return (size + p * 2 - k + s - 1) / s + 1:
   }
@@ -86,9 +90,16 @@ xt::xarray<T> im2col(xt::xarray<T> x, std::vector<std::size_t> kernel_size,
 */
 
 template <class T>
-xt::xarray<T> im2col(xt::xarray<T> img, std::size_t kh, std::size_t kw,
-                     std::size_t sy, std::size_t sx, std::size_t ph,
-                     std::size_t pw, T padding_value, bool cover_all = false) {
+xt::xarray<T> im2col(
+    xt::xarray<T> img,
+    std::size_t kh,
+    std::size_t kw,
+    std::size_t sy,
+    std::size_t sx,
+    std::size_t ph,
+    std::size_t pw,
+    T padding_value,
+    bool cover_all = false) {
   auto padded_shape = img.shape();
   std::size_t n = padded_shape[0];
   std::size_t c = padded_shape[1];
@@ -99,8 +110,9 @@ xt::xarray<T> im2col(xt::xarray<T> img, std::size_t kh, std::size_t kw,
   padded_shape[3] += pw * 2 + (cover_all ? sx - 1 : 0);
 
   xt::array<T> tmp = xt::zeros<T>(padded_shape) + padding_value;
-  xt::view(tmp, xt::all(), xt::all(), xt::range(ph, ph + h),
-           xt::range(pw, pw + w)) = img;
+  xt::view(
+      tmp, xt::all(), xt::all(), xt::range(ph, ph + h), xt::range(pw, pw + w)) =
+      img;
 
   std::size_t out_h = get_conv_outsize(h, kh, sy, ph, cover_all);
   std::size_t out_w = get_conv_outsize(w, kw, sx, pw, cover_all);
@@ -114,15 +126,19 @@ xt::xarray<T> im2col(xt::xarray<T> img, std::size_t kh, std::size_t kw,
     for (std::size_t i = 0; i < kw; ++i) {
       std::size_t i_lim = i + sx * out_w;
       xt::view(out, xt::all(), xt::all(), j, i, xt::all(), xt::all()) =
-          xt::view(tmp, xt::all(), xt::all(), xt::range(j, j_lim, sy),
-                   xt::range(i, i_lim, sx));
+          xt::view(
+              tmp,
+              xt::all(),
+              xt::all(),
+              xt::range(j, j_lim, sy),
+              xt::range(i, i_lim, sx));
     }
   }
 
   return out;
 }
 
-} // namespace utils
-} // namespace xnn
+}  // namespace utils
+}  // namespace xnn
 
-#endif // __XNN_UTILS_CONVOLUTION_HPP__
+#endif  // __XNN_UTILS_CONVOLUTION_HPP__

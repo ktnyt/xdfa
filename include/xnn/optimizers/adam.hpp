@@ -11,12 +11,15 @@ namespace xnn {
 namespace optimizers {
 
 class Adam : public UpdateRule<float> {
-public:
-  Adam(float alpha = 0.001, float beta1 = 0.9, float beta2 = 0.999,
-       float epsilon = 1e-08)
+ public:
+  Adam(
+      float alpha = 0.001,
+      float beta1 = 0.9,
+      float beta2 = 0.999,
+      float epsilon = 1e-08)
       : alpha(alpha), beta1(beta1), beta2(beta2), epsilon(epsilon) {}
 
-  void operator()(xt::xarray<float> &data, xt::xarray<float> grad) override {
+  void operator()(xt::xarray<float>& data, xt::xarray<float> grad) override {
     if (m.size() != grad.size() || v.size() != grad.size()) {
       m = xt::zeros<float>(grad.shape());
       v = xt::zeros<float>(grad.shape());
@@ -28,7 +31,7 @@ public:
     data -= alpha * m / (xt::sqrt(v) + epsilon);
   }
 
-private:
+ private:
   float alpha;
   float beta1;
   float beta2;
@@ -38,7 +41,7 @@ private:
   xt::xarray<float> v;
 };
 
-} // namespace optimizers
-} // namespace xnn
+}  // namespace optimizers
+}  // namespace xnn
 
-#endif // __XNN_OPTIMIZERS_ADAM_HPP__
+#endif  // __XNN_OPTIMIZERS_ADAM_HPP__

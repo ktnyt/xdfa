@@ -4,4 +4,3 @@
 #include "xnn/functions/evaluation/accuracy.hpp"
 
 #endif  // __XNN_FUNCTIONS_EVALUATION_HPP__
-

@@ -5,4 +5,3 @@
 #include "xnn/optimizers/sgd.hpp"
 
 #endif  // __XNN_OPTIMIZERS_HPP__
-

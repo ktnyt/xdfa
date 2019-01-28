@@ -1,8 +1,8 @@
-#ifndef __XNN_FUNCTIONS_CONNECTION_CONVOLUTION_HPP__
-#define __XNN_FUNCTIONS_CONNECTION_CONVOLUTION_HPP__
+#ifndef __XNN_LAYERS_CONNECTION_CONVOLUTION_HPP__
+#define __XNN_LAYERS_CONNECTION_CONVOLUTION_HPP__
 
-#include "xnn/function.hpp"
 #include "xnn/initializers.hpp"
+#include "xnn/layer.hpp"
 #include "xnn/utils/convolution.hpp"
 
 #include "xtensor-blas/xlinalg.h"
@@ -11,11 +11,11 @@
 #include <numeric>
 
 namespace xnn {
-namespace functions {
+namespace layers {
 namespace connection {
 
-class Convolution2D final : public Function<float> {
-  class Impl : Function<float>::Impl {
+class Convolution2D final : public Layer<float> {
+  class Impl : Layer<float>::Impl {
    public:
     Impl(
         std::size_t in_channels,
@@ -65,7 +65,7 @@ class Convolution2D final : public Function<float> {
 };
 
 }  // namespace connection
-}  // namespace functions
+}  // namespace layers
 }  // namespace xnn
 
-#endif  // __XNN_FUNCTIONS_CONNECTION_CONVOLUTION_HPP__
+#endif  // __XNN_LAYERS_CONNECTION_CONVOLUTION_HPP__

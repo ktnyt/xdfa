@@ -3,38 +3,30 @@
 
 #include "xnn/function.hpp"
 
-#include "xtensor/xmath.hpp"
-
-#include <queue>
-
 namespace xnn {
 namespace functions {
 namespace activation {
 
-class Sigmoid final : public Function<float> {
-  class Impl final : public Function<float>::Impl {
-  public:
-    xt::xarray<float> forward(xt::xarray<float> x) override {
-      queue.push(xt::tanh(x * 0.5) * 0.5 + 0.5);
-      return queue.front();
-    }
-
-    xt::xarray<float> backward(xt::xarray<float> d) override {
-      xt::xarray<float> y = queue.front();
-      queue.pop();
-      return d * y * (1.0 - y);
-    }
-
-  private:
-    std::queue<xt::xarray<float>> queue;
-  };
-
-public:
-  Sigmoid() : Function<float>(std::make_shared<Impl>()) {}
+class Sigmoid : public Function<float> {
+ public:
+  xt::xarray<float> operator()(xt::xarray<float> x) {
+    return xt::tanh(x * 0.5) * 0.5 + 0.5;
+  }
 };
 
-} // namespace activation
-} // namespace functions
-} // namespace xnn
+class SigmoidGrad : public Function<float> {
+ public:
+  xt::xarray<float> operator()(xt::xarray<float> x) {
+    return x * (1.0 - x);
+  }
+};
 
-#endif // __XNN_FUNCTIONS_ACTIVATION_SIGMOID_HPP__
+xt::xarray<float> sigmoid(xt::xarray<float> x) { return Sigmoid()(x); }
+
+xt::xarray<float> sigmoid_grad(xt::xarray<float> x) { return SigmoidGrad()(x); }
+
+}  // namespace activation
+}  // namespace functions
+}  // namespace xnn
+
+#endif  // __XNN_FUNCTIONS_ACTIVATION_SIGMOID_HPP__

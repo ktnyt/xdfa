@@ -6,15 +6,14 @@
 
 #include "xtensor/xarray.hpp"
 
-#include "xnn/functions.hpp"
+#include "xnn/xnn.hpp"
 #include "xnn/loaders/mnist.hpp"
-#include "xnn/optimizers.hpp"
 
-namespace xfa = xnn::functions::activation;
-namespace xfc = xnn::functions::connection;
 namespace xfe = xnn::functions::evaluation;
-namespace xfl = xnn::functions::loss;
-namespace xfm = xnn::functions::miscellaneous;
+namespace xla = xnn::layers::activation;
+namespace xlc = xnn::layers::connection;
+namespace xll = xnn::layers::loss;
+namespace xlm = xnn::layers::miscellaneous;
 
 namespace xop = xnn::optimizers;
 
@@ -37,25 +36,20 @@ int main() {
   std::size_t batchsize = 100;
   std::size_t n_hidden = 1000;
 
-  xfa::Sigmoid a0;
-  xfc::LinearFeedback l0(n_input, n_hidden, n_output, xop::Adam(), a0);
-  xfc::Linear l1(n_hidden, 10, xop::Adam());
-  xfl::SoftmaxCrossEntropy error;
-  xfm::DirectFeedback<float> network(l0, l1);
+  xla::Sigmoid a0;
+  xlc::LinearFeedback l0(n_input, n_hidden, n_output, xop::Adam(), a0);
+  xlc::Linear l1(n_hidden, 10, xop::Adam());
+  xll::SoftmaxCrossEntropy error;
+  xlm::DirectFeedback<float> network(l0, l1);
 
   for (std::size_t epoch = 0; epoch < n_epochs; ++epoch) {
-    std::cout << "Epoch " << epoch + 1 << std::flush;
-
     xt::xarray<float> loss = 0.0;
     xt::xarray<float> acc = 0.0;
 
     xt::random::seed(epoch);
     xt::random::shuffle(x_train);
-
-    t_train.resize({n_train, 1});
     xt::random::seed(epoch);
     xt::random::shuffle(t_train);
-    t_train.resize({n_train});
 
     for (std::size_t i = 0; i < n_train; i += batchsize) {
       std::cout << "\rEpoch " << std::right << std::setfill(' ') << std::setw(2)

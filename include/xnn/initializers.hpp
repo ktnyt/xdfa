@@ -4,4 +4,3 @@
 #include "xnn/initializers/normal.hpp"
 
 #endif  // __XNN_INITIALIZERS_HPP__
-

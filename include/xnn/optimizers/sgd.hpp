@@ -9,18 +9,18 @@ namespace xnn {
 namespace optimizers {
 
 class SGD final : public UpdateRule<float> {
-public:
+ public:
   SGD(float lr = 0.05) : lr(lr) {}
 
-  void operator()(xt::xarray<float> &data, xt::xarray<float> grad) override {
+  void operator()(xt::xarray<float>& data, xt::xarray<float> grad) override {
     data -= grad * lr;
   }
 
-private:
+ private:
   float lr;
 };
 
-} // namespace optimizers
-} // namespace xnn
+}  // namespace optimizers
+}  // namespace xnn
 
-#endif // __XNN_OPTIMIZERS_SGD_HPP__
+#endif  // __XNN_OPTIMIZERS_SGD_HPP__
