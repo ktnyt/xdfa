@@ -6,5 +6,6 @@
 #include "xnn/layers/evaluation.hpp"
 #include "xnn/layers/loss.hpp"
 #include "xnn/layers/miscellaneous.hpp"
+#include "xnn/layers/noise.hpp"
 
 #endif  // __XNN_LAYERS_HPP__
