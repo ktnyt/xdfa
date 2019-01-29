@@ -10,6 +10,8 @@
 #include "xtensor/xbuilder.hpp"
 #include "xtensor/xmath.hpp"
 
+#include <algorithm>
+#include <functional>
 #include <queue>
 
 namespace xnn {
@@ -26,12 +28,21 @@ class Linear final : public Layer<float> {
 
     xt::xarray<float> forward(xt::xarray<float> x) override {
       forward_queue.push(x);
+      if (x.shape().size() > 2) {
+        shape_queue.emplace(x.shape().begin(), x.shape().end());
+        x.reshape({x.shape()[0], W.shape()[0]});
+      }
       return functions::connection::linear(x, W, b);
     }
 
     xt::xarray<float> backward(xt::xarray<float> dy) override {
       backward_queue.push(dy);
-      return functions::connection::linear_grad(dy, W);
+      xt::xarray<float> dx = functions::connection::linear_grad(dy, W);
+      if(!shape_queue.empty()) {
+        dx.reshape(shape_queue.front());
+        shape_queue.pop();
+      }
+      return dx;
     }
 
     void update() override {
@@ -52,6 +63,7 @@ class Linear final : public Layer<float> {
 
     std::queue<xt::xarray<float>> forward_queue;
     std::queue<xt::xarray<float>> backward_queue;
+    std::queue<std::vector<std::size_t>> shape_queue;
   };
 
  public:
