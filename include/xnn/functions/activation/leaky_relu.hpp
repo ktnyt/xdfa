@@ -7,8 +7,6 @@
 #include "xtensor/xindex_view.hpp"
 #include "xtensor/xmath.hpp"
 
-#include "doctest.h"
-
 namespace xnn {
 namespace functions {
 namespace activation {
