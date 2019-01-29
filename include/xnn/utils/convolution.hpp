@@ -38,69 +38,6 @@ std::size_t get_deconv_outsize(
   return s * (size - 1) + k - 2 * p;
 }
 
-/* TODO Nd-Convolution
-std::vector<std::vector<std::size_t>>
-cartesian(std::vector<std::vector<std::size_t>> &v) {
-  auto product = [](std::size_t a, std::vector<std::size_t> b) {
-    return a * b.size();
-  };
-  const std::size_t N = std::accumulate(v.begin(), v.end(), 1, std::product);
-  std::vector<std::vector<std::size_t>> r(N);
-  std::vector<std::size_t> u(v.size());
-  for (std::size_t n = 0; n < N; ++n) {
-    lldiv_t q{n, 0};
-    for (std::size_t j = 0; j < v.size(); ++j) {
-      std::size_t i = v.size() - j - 1;
-      q = std::div(q.quot, v[i].size());
-      u[i] = v[i][q.rem];
-    }
-    r[n] = u;
-  }
-  return r;
-}
-
-template <class T>
-xt::xarray<T> im2col(xt::xarray<T> x, std::vector<std::size_t> kernel_size,
-                     std::vector<std::size_t> stride,
-                     std::vector<std::size_t> pad, bool cover_all,
-                     T pad_value) {
-  std::size_t ndim = kernel_size.size();
-
-  auto padded_shape = x.shape();
-  xt::strided_slice_vector slices({xt::all(), xt::all()});
-  for (std::size_t i = 0; i < ndim; ++i) {
-    padded_shape[i + 2] += pad[i] * 2 + (cover_all ? stride[i] - 1 : 0);
-    slices.push_back(xt::range(pad[i], pad[i] + x.shape()[i + 2]));
-  }
-  xt::xarray<T> padded_x = xt::zeros<T>(padded_shape) + pad_value;
-  xt::strided_view(padded_x, slices) = x;
-
-  std::vector<std::size_t> out_dims;
-  for (std::size_t i = 0; i < ndim; ++i) {
-    out_dims.emplace_back(get_conv_out_dim(x.shape()[i + 2], kernel_size[i],
-                                           stride[i], pad[i], cover_all));
-  }
-
-  std::vector<std::size_t> out_shape({x.shape()[0], x.shape()[1]});
-  std::copy(kernel_size.begin(), kernel_size.end(),
-            std::back_inserter(out_shape));
-  std::copy(out_dims.begin(), out_dims.end(), std::back_inserter(out_shape));
-  xt::xarray<T> out(out_shape);
-
-  std::vector<std::vector<std::size_t>> indices = catesian(kernel_size);
-
-  for (std::size_t i = 0; i < product.size(); ++i) {
-    xt::strided_slice_vector col_slices({xt::all(), xt::all()});
-    for (std::size_t j = 0; j < indices[i].size(); ++j) {
-      col_slices.push_back(indices[i][j]);
-    }
-    for(std::size_t j = 0; j < x.shape().size() - 2; ++j) {
-      col_slices.push_back(xt::all());
-    }
-  }
-}
-*/
-
 template <class T>
 xt::xarray<T> im2col(
     xt::xarray<T> img,
@@ -110,7 +47,7 @@ xt::xarray<T> im2col(
     std::size_t sx,
     std::size_t ph,
     std::size_t pw,
-    T padding_value,
+    T padding_value = static_cast<T>(0),
     bool cover_all = false) {
   auto padded_shape = img.shape();
   std::size_t n = padded_shape[0];
@@ -168,7 +105,7 @@ xt::xarray<T> col2im(
 
   std::vector<std::size_t> shape = {
       n, c, h + 2 * ph + sy - 1, w + 2 * pw + sx - 1};
-  xt::xarray<T> img(shape);
+  xt::xarray<T> img = xt::zeros<T>(shape);
 
   for (std::size_t j = 0; j < kh; ++j) {
     std::size_t j_lim = j + sy * out_h;
@@ -179,12 +116,14 @@ xt::xarray<T> col2im(
           xt::all(),
           xt::all(),
           xt::range(j, j_lim, sy),
-          xt::range(i, i_lim, sx)) = xt::view(col, xt::all(), xt::all(), j, i);
+          xt::range(i, i_lim, sx)) +=
+          xt::view(col, xt::all(), xt::all(), j, i, xt::all(), xt::all());
     }
   }
 
-  return xt::view(
+  xt::xarray<float> ret = xt::view(
       img, xt::all(), xt::all(), xt::range(ph, h + ph), xt::range(pw, w + pw));
+  return ret;
 }
 
 }  // namespace utils
