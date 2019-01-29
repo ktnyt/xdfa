@@ -1,5 +1,6 @@
 if (BUILD_XNN_TESTS)
   ENABLE_TESTING()
+  INCLUDE_DIRECTORIES(tests)
   ADD_EXECUTABLE(
     main_tests
     main.cpp
