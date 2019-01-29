@@ -12,12 +12,17 @@ namespace xnn {
 namespace functions {
 namespace activation {
 
-xt::xarray<float> softmax(xt::xarray<float> x) {
-  xt::transpose(x) -= xt::amax(x, {1});
-  xt::xarray<float> e = xt::exp(x);
-  xt::transpose(e) /= xt::sum(e, {1});
-  return e;
-}
+class Softmax final : public Function<float> {
+ public:
+  xt::xarray<float> operator()(xt::xarray<float> x) {
+    xt::transpose(x) -= xt::amax(x, {1});
+    xt::xarray<float> e = xt::exp(x);
+    xt::transpose(e) /= xt::sum(e, {1});
+    return e;
+  }
+};
+
+xt::xarray<float> softmax(xt::xarray<float> x) { return Softmax()(x); }
 
 }  // namespace activation
 }  // namespace functions
