@@ -4,6 +4,7 @@
 #include "xnn/functions/connection/convolution.hpp"
 #include "xnn/initializers.hpp"
 #include "xnn/layer.hpp"
+#include "xnn/optimizer.hpp"
 #include "xnn/utils/convolution.hpp"
 
 #include "xtensor-blas/xlinalg.hpp"
@@ -19,6 +20,8 @@ class Convolution2D final : public Layer<float> {
     Impl(
         std::size_t in_channels,
         std::size_t out_channels,
+        std::size_t kh,
+        std::size_t kw,
         std::size_t sy,
         std::size_t sx,
         std::size_t ph,
