@@ -13,12 +13,14 @@ namespace activation {
 
 class ReLU : public Function<float> {
  public:
-  xt::xarray<float> operator(xt::xarray<float> x) { return xt::fmax(x, 0.0); }
+  xt::xarray<float> operator(xt::xarray<float> x) override {
+    return xt::fmax(x, 0.0);
+  }
 };
 
 class ReLUGrad : public Function<float> {
  public:
-  xt::xarray<float> operator(xt::xarray<float> x) {
+  xt::xarray<float> operator(xt::xarray<float> x) override {
     xt::filtration(x, x > 0) = 1.0;
     return x;
   }

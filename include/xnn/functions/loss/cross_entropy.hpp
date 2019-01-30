@@ -16,7 +16,7 @@ class CrossEntropy final : public Function<float> {
  public:
   CrossEntropy(xt::xarray<int>& t) : t(t) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     auto idx = utils::to_index(t);
     auto y = xt::index_view(x, idx);
     return xt::mean(-xt::log(y));

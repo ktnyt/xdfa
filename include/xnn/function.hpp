@@ -8,7 +8,10 @@
 namespace xnn {
 
 template <class T>
-using Function = std::function<xt::xarray<T>(xt::xarray<T>)>;
+class Function {
+ public:
+  virtual xt::xarray<T> operator()(xt::xarray<T>) = 0;
+};
 
 }  // namespace xnn
 

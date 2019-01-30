@@ -14,7 +14,7 @@ class Dropout final : public Function<float> {
  public:
   Dropout(xt::xarray<bool>& mask) : mask(mask) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::masked_view(x, mask) = 0.0;
     return x;
   }

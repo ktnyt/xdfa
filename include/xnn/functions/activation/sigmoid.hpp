@@ -9,14 +9,14 @@ namespace activation {
 
 class Sigmoid final : public Function<float> {
  public:
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     return xt::tanh(x * 0.5) * 0.5 + 0.5;
   }
 };
 
 class SigmoidGrad : public Function<float> {
  public:
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     return x * (1.0 - x);
   }
 };

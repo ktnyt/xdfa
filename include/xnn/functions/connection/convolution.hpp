@@ -22,7 +22,7 @@ class Convolution2D final : public Function<float> {
       bool cover_all = false)
       : W(W), sy(sy), sx(sx), ph(ph), pw(pw), cover_all(cover_all) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::xarray<float> col = utils::im2col(
         x,
         W.shape()[2],
@@ -57,7 +57,7 @@ class Deconvolution2D final : public Function<float> {
       bool cover_all = false)
       : W(W), sy(sy), sx(sx), ph(ph), pw(pw), cover_all(cover_all) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::xarray<float> tmp = xt::linalg::tensordot(W, x, 2);
     xt::xarray<float> col = xt::transpose(tmp, {3, 0, 1, 2});
     std::size_t h;

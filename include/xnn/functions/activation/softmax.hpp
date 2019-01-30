@@ -14,7 +14,7 @@ namespace activation {
 
 class Softmax final : public Function<float> {
  public:
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::transpose(x) -= xt::amax(x, {1});
     xt::xarray<float> e = xt::exp(x);
     xt::transpose(e) /= xt::sum(e, {1});

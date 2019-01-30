@@ -16,7 +16,7 @@ class Linear final : public Function<float> {
  public:
   Linear(xt::xarray<float>& W, xt::xarray<float>& b) : W(W), b(b) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     return xt::linalg::dot(x, W) + b;
   }
 
@@ -29,7 +29,7 @@ class LinearGrad final : public Function<float> {
  public:
   LinearGrad(xt::xarray<float>& W) : W(W) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     return xt::linalg::dot(x, xt::transpose(W));
   }
 
