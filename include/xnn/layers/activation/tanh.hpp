@@ -1,7 +1,7 @@
-#ifndef __XNN_LAYERS_ACTIVATION_SIGMOID_HPP__
-#define __XNN_LAYERS_ACTIVATION_SIGMOID_HPP__
+#ifndef __XNN_LAYERS_ACTIVATION_TANH_HPP__
+#define __XNN_LAYERS_ACTIVATION_TANH_HPP__
 
-#include "xnn/functions/activation/sigmoid.hpp"
+#include "xnn/functions/activation/tanh.hpp"
 #include "xnn/layer.hpp"
 
 #include "xtensor/xarray.hpp"
@@ -12,18 +12,18 @@ namespace xnn {
 namespace layers {
 namespace activation {
 
-class Sigmoid final : public Layer<float> {
+class Tanh final : public Layer<float> {
   class Impl final : public Layer<float>::Impl {
    public:
     xt::xarray<float> forward(xt::xarray<float> x) override {
-      queue.push(functions::activation::sigmoid(x));
+      queue.push(functions::activation::tanh(x));
       return queue.front();
     }
 
     xt::xarray<float> backward(xt::xarray<float> d) override {
       xt::xarray<float> y = queue.front();
       queue.pop();
-      return d * functions::activation::sigmoid_grad(y);
+      return d * functions::activation::tanh_grad(y);
     }
 
    private:
@@ -31,11 +31,11 @@ class Sigmoid final : public Layer<float> {
   };
 
  public:
-  Sigmoid() : Layer<float>(std::make_shared<Impl>()) {}
+  Tanh() : Layer<float>(std::make_shared<Impl>()) {}
 };
 
 }  // namespace activation
 }  // namespace layers
 }  // namespace xnn
 
-#endif  // __XNN_LAYERS_ACTIVATION_SIGMOID_HPP__
+#endif  // __XNN_LAYERS_ACTIVATION_TANH_HPP__
