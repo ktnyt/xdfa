@@ -3,6 +3,9 @@
 
 #include "xnn/function.hpp"
 
+#include "xtensor/xarray.hpp"
+#include "xtensor/xmath.hpp"
+
 namespace xnn {
 namespace functions {
 namespace activation {
