@@ -4,6 +4,7 @@
 #include "xtensor/xarray.hpp"
 #include "xtensor/xbuilder.hpp"
 #include "xtensor/xstrided_view.hpp"
+#include "xtensor/xview.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -12,7 +13,7 @@
 namespace xnn {
 namespace utils {
 
-std::size_t get_conv_outsize(
+inline std::size_t get_conv_outsize(
     std::size_t size,
     std::size_t k,
     std::size_t s,
@@ -24,7 +25,7 @@ std::size_t get_conv_outsize(
   return (size + p * 2 - k) / s + 1;
 }
 
-std::size_t get_deconv_outsize(
+inline std::size_t get_deconv_outsize(
     std::size_t size,
     std::size_t k,
     std::size_t s,
