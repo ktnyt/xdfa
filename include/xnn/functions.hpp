@@ -6,5 +6,6 @@
 #include "xnn/functions/evaluation.hpp"
 #include "xnn/functions/loss.hpp"
 #include "xnn/functions/miscellaneous.hpp"
+#include "xnn/functions/pooling.hpp"
 
 #endif  // __XNN_FUNCTIONS_HPP__
