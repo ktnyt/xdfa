@@ -1,19 +1,18 @@
-#ifndef __XNN_LAYERS_POOLING_AVERAGE_POOLING_HPP__
-#define __XNN_LAYERS_POOLING_AVERAGE_POOLING_HPP__
+#ifndef __XNN_LAYERS_POOLING_MAX_POOLING_HPP__
+#define __XNN_LAYERS_POOLING_MAX_POOLING_HPP__
 
-#include "xnn/functions/pooling/average_pooling.hpp"
+#include "xnn/functions/pooling/max_pooling.hpp"
 #include "xnn/layer.hpp"
 
 #include "xtensor/xarray.hpp"
 
 #include <queue>
-#include <tuple>
 
 namespace xnn {
 namespace layers {
 namespace pooling {
 
-class AveragePooling2D : public Layer<float> {
+class MaxPooling2D final : public Layer<float> {
   class Impl final : public Layer<float>::Impl {
    public:
     Impl(
@@ -33,18 +32,22 @@ class AveragePooling2D : public Layer<float> {
           cover_all(cover_all) {}
 
     xt::xarray<float> forward(xt::xarray<float> x) override {
-      queue.emplace(x.shape()[2], x.shape()[3]);
-      return functions::pooling::average_pooling_2d(
+      xt::xarray<float> y;
+      xt::xarray<std::size_t> i;
+      std::tie(y, i) = functions::pooling::max_pooling_2d(
           x, kh, kw, sy, sx, ph, pw, cover_all);
+      queue.emplace(x.shape()[2], x.shape()[3], i);
+      return y;
     }
 
     xt::xarray<float> backward(xt::xarray<float> dy) override {
       std::size_t h;
       std::size_t w;
-      std::tie(h, w) = queue.front();
+      xt::xarray<std::size_t> i;
+      std::tie(h, w, i) = queue.front();
       queue.pop();
-      return functions::pooling::average_pooling_2d_grad(
-          dy, h, w, kh, kw, sy, sx, ph, pw, cover_all);
+      return functions::pooling::max_pooling_2d_grad(
+          dy, h, w, i, kh, kw, sy, sx, ph, pw, cover_all);
     }
 
    private:
@@ -56,11 +59,12 @@ class AveragePooling2D : public Layer<float> {
     std::size_t pw;
     bool cover_all;
 
-    std::queue<std::pair<std::size_t, std::size_t>> queue;
+    std::queue<std::tuple<std::size_t, std::size_t, xt::xarray<std::size_t>>>
+        queue;
   };
 
  public:
-  AveragePooling2D(
+  MaxPooling2D(
       std::size_t kh,
       std::size_t kw,
       std::size_t sy,
@@ -70,13 +74,13 @@ class AveragePooling2D : public Layer<float> {
       bool cover_all = false)
       : Layer<float>(std::make_shared<Impl>(kh, kw, sy, sx, ph, pw, cover_all)) {}
 
-  AveragePooling2D(
+  MaxPooling2D(
       std::size_t k, std::size_t s, std::size_t p, bool cover_all = false)
-      : AveragePooling2D(k, k, s, s, p, p, cover_all) {}
+      : MaxPooling2D(k, k, s, s, p, p, cover_all) {}
 };
 
 }  // namespace pooling
 }  // namespace layers
 }  // namespace xnn
 
-#endif  // __XNN_LAYERS_POOLING_AVERAGE_POOLING_HPP__
+#endif  // __XNN_LAYERS_POOLING_MAX_POOLING_HPP__

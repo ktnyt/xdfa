@@ -21,6 +21,7 @@ class Layer {
 
   template <class U>
   Layer(std::shared_ptr<U> ptr) : ptr(std::static_pointer_cast<Impl>(ptr)) {}
+  xt::xarray<T> operator()(xt::xarray<T> x) { return forward(x); }
   xt::xarray<T> forward(xt::xarray<T> x) {
     return ptr->forward(std::forward<xt::xarray<T>>(x));
   }

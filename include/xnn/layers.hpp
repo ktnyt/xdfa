@@ -7,5 +7,6 @@
 #include "xnn/layers/loss.hpp"
 #include "xnn/layers/miscellaneous.hpp"
 #include "xnn/layers/noise.hpp"
+#include "xnn/layers/pooling.hpp"
 
 #endif  // __XNN_LAYERS_HPP__

@@ -2,6 +2,6 @@
 #define __XNN_FUNCTIONS_POOLING_HPP__
 
 #include "xnn/functions/pooling/average_pooling.hpp"
+#include "xnn/functions/pooling/max_pooling.hpp"
 
 #endif  // __XNN_FUNCTIONS_POOLING_HPP__
-
