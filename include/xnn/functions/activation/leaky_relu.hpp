@@ -15,8 +15,9 @@ class LeakyReLU : public Function<float> {
  public:
   LeakyReLU(float slope = 0.2) : slope(slope) {}
 
-  xt::xarray<float> operator(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::filtration(x, x < 0) *= slope;
+    return x;
   }
 
  private:
@@ -25,9 +26,9 @@ class LeakyReLU : public Function<float> {
 
 class LeakyReLUGrad : public Function<float> {
  public:
-  LeakyReLU(float slope = 0.2) : slope(slope) {}
+  LeakyReLUGrad(float slope = 0.2) : slope(slope) {}
 
-  xt::xarray<float> operator(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::filtration(x, x > 0) = 1.0;
     xt::filtration(x, x <= 0) = slope;
     return x;
