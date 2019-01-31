@@ -9,8 +9,6 @@
 #include "xtensor/xmath.hpp"
 #include "xtensor/xview.hpp"
 
-#include <iostream>
-
 namespace xnn {
 namespace functions {
 namespace pooling {
@@ -54,9 +52,8 @@ class AveragePooling2DGrad final : public Pooling2D<float> {
   xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::xarray<float> tmp =
         xt::view(x, xt::all(), xt::all(), xt::newaxis(), xt::newaxis());
-    xt::xarray<float> gcol = utils::tile(tmp, {1, 1, kh, kw, 1, 1});
-    std::cout << gcol << std::endl;
-    xt::xarray<float> y = utils::col2im(gcol, sy, sx, ph, pw, h, w);
+    xt::xarray<float> dcol = utils::tile(tmp, {1, 1, kh, kw, 1, 1});
+    xt::xarray<float> y = utils::col2im(dcol, sy, sx, ph, pw, h, w);
     y /= kh * kw;
     return y;
   }
