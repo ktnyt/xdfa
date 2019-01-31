@@ -50,6 +50,10 @@ class Linear final : public Layer<float> {
       xt::xarray<float> dy = backward_queue.front();
       forward_queue.pop();
       backward_queue.pop();
+      if (x.shape().size() > 2) {
+        shape_queue.emplace(x.shape().begin(), x.shape().end());
+        x.reshape({x.shape()[0], W.shape()[0]});
+      }
       xt::xarray<float> dW = xt::linalg::dot(xt::transpose(x), dy);
       rule(W, dW);
       rule(b, xt::sum(dy, {0}));

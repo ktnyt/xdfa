@@ -13,7 +13,7 @@
 namespace xnn {
 namespace layers {
 namespace connection {
-
+  
 class Convolution2D final : public Layer<float> {
   class Impl final : public Layer<float>::Impl {
    public:
@@ -26,12 +26,14 @@ class Convolution2D final : public Layer<float> {
         std::size_t sx,
         std::size_t ph,
         std::size_t pw,
+        Updater<float> rule,
         bool cover_all = false)
         : W(initializers::LeCunNormal()({out_channels, in_channels, kh, kw})),
           sy(sy),
           sx(sx),
           ph(ph),
           pw(pw),
+          rule(rule),
           cover_all(cover_all) {}
 
     xt::xarray<float> forward(xt::xarray<float> x) override {
@@ -41,7 +43,7 @@ class Convolution2D final : public Layer<float> {
     }
 
     xt::xarray<float> backward(xt::xarray<float> dy) override {
-      forward_queue.push(dy);
+      backward_queue.push(dy);
       return functions::connection::deconvolution2d(
           dy, W, sy, sx, ph, pw, cover_all);
     }
@@ -84,20 +86,36 @@ class Convolution2D final : public Layer<float> {
   Convolution2D(
       std::size_t in_channels,
       std::size_t out_channels,
-      std::size_t kernel,
-      std::size_t stride,
-      std::size_t pad,
+      std::size_t kh,
+      std::size_t kw,
+      std::size_t sy,
+      std::size_t sx,
+      std::size_t ph,
+      std::size_t pw,
+      Updater<float> rule,
       bool cover_all = false)
       : Layer<float>(std::make_shared<Impl>(
             in_channels,
             out_channels,
-            kernel,
-            kernel,
-            stride,
-            stride,
-            pad,
-            pad,
+            kh,
+            kw,
+            sy,
+            sx,
+            ph,
+            pw,
+            rule,
             cover_all)) {}
+
+  Convolution2D(
+      std::size_t in_channels,
+      std::size_t out_channels,
+      std::size_t k,
+      std::size_t s,
+      std::size_t p,
+      Updater<float> rule,
+      bool cover_all = false)
+      : Convolution2D(
+            in_channels, out_channels, k, k, s, s, p, p, rule, cover_all) {}
 };
 
 }  // namespace connection

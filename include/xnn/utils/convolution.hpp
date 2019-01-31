@@ -5,8 +5,6 @@
 #include "xtensor/xbuilder.hpp"
 #include "xtensor/xstrided_view.hpp"
 
-#include "xtensor-blas/xlinalg.hpp"
-
 #include <algorithm>
 #include <functional>
 #include <vector>

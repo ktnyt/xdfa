@@ -76,6 +76,11 @@ xt::xarray<T> read_images(const char* path, bool flatten = false) {
   if (flatten) {
     array.reshape({static_cast<std::size_t>(n_images),
                    static_cast<std::size_t>(n_rows * n_cols)});
+  } else {
+    array.reshape({static_cast<std::size_t>(n_images),
+                   1,
+                   static_cast<std::size_t>(n_rows),
+                   static_cast<std::size_t>(n_cols)});
   }
 
   return array;
