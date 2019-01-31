@@ -17,8 +17,16 @@ namespace pooling {
 
 class AveragePooling2D final : public Pooling2D<float> {
  public:
-  template <class... Args>
-  AveragePooling2D(Args&&... args) : Pooling2D<float>(args...) {}
+  AveragePooling2D(
+      std::size_t kh,
+      std::size_t kw,
+      std::size_t sy,
+      std::size_t sx,
+      std::size_t ph,
+      std::size_t pw,
+      bool cover_all = true,
+      bool return_indices = false)
+      : Pooling2D<float>(kh, kw, sy, sx, ph, pw, cover_all, return_indices) {}
 
   xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::xarray<float> col = utils::im2col(x, kh, kw, sy, sx, ph, pw);
