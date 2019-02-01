@@ -1,11 +1,10 @@
 #include "doctest.h"
+#include "doctest-helper.h"
 
 #include "xnn/functions/connection/convolution.hpp"
 
 #include "xtensor/xarray.hpp"
 #include "xtensor/xbuilder.hpp"
-
-#include <limits>
 
 namespace F = xnn::functions;
 
@@ -40,8 +39,8 @@ TEST_CASE("convolution k=3, s=1, p=0") {
   }}};
   // clang-format on
 
-  xt::xarray<float> a_y = F::connection::convolution2d(x, W, 1, 0);
-  REQUIRE(xt::abs(xt::mean(a_y - e_y))() < 1e-5);
+  xt::xarray<float> a_y = F::connection::convolution_2d(x, W, 1, 0);
+  CLOSE(a_y - e_y, 1e-5);
 }
 
 TEST_CASE("convolution k=3, s=2, p=0") {
@@ -81,12 +80,12 @@ TEST_CASE("convolution k=3, s=2, p=0") {
   }}};
   // clang-format on
 
-  xt::xarray<float> a_y = F::connection::convolution2d(x, W, 2, 0);
-  REQUIRE(xt::abs(xt::mean(a_y - e_y))() < 1e-5);
+  xt::xarray<float> a_y = F::connection::convolution_2d(x, W, 2, 0);
+  CLOSE(a_y - e_y, 1e-5);
 
-  xt::xarray<float> a_dx = F::connection::deconvolution2d(dy, W, 2, 0);
-  REQUIRE(xt::abs(xt::mean(a_dx - e_dx))() < 1e-5);
+  xt::xarray<float> a_dx = F::connection::deconvolution_2d(dy, W, 2, 0);
+  CLOSE(a_dx - e_dx, 1e-5);
 
-  xt::xarray<float> a_dW = F::connection::convolution2d_grad(x, W, dy, 2, 0);
-  REQUIRE(xt::abs(xt::mean(a_dW - e_dW))() < 1e-5);
+  xt::xarray<float> a_dW = F::connection::convolution_2d_grad(x, W, dy, 2, 0);
+  CLOSE(a_dW - e_dW, 1e-5);
 }

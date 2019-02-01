@@ -156,7 +156,7 @@ class Deconvolution2D final : public Function<float> {
   bool cover_all;
 };
 
-xt::xarray<float> convolution2d(
+xt::xarray<float> convolution_2d(
     xt::xarray<float> x,
     xt::xarray<float>& W,
     std::size_t sy,
@@ -167,7 +167,7 @@ xt::xarray<float> convolution2d(
   return Convolution2D(W, sy, sx, ph, pw, cover_all)(x);
 }
 
-xt::xarray<float> convolution2d(
+xt::xarray<float> convolution_2d(
     xt::xarray<float> x,
     xt::xarray<float>& W,
     std::size_t s,
@@ -176,7 +176,7 @@ xt::xarray<float> convolution2d(
   return Convolution2D(W, s, p, cover_all)(x);
 }
 
-xt::xarray<float> convolution2d_grad(
+xt::xarray<float> convolution_2d_grad(
     xt::xarray<float> x,
     xt::xarray<float>& W,
     xt::xarray<float>& dy,
@@ -188,7 +188,7 @@ xt::xarray<float> convolution2d_grad(
   return Convolution2DGrad(W, dy, sy, sx, ph, pw, cover_all)(x);
 }
 
-xt::xarray<float> convolution2d_grad(
+xt::xarray<float> convolution_2d_grad(
     xt::xarray<float> x,
     xt::xarray<float>& W,
     xt::xarray<float>& dy,
@@ -198,7 +198,7 @@ xt::xarray<float> convolution2d_grad(
   return Convolution2DGrad(W, dy, s, p, cover_all)(x);
 }
 
-xt::xarray<float> deconvolution2d(
+xt::xarray<float> deconvolution_2d(
     xt::xarray<float> x,
     xt::xarray<float>& W,
     std::size_t sy,
@@ -209,7 +209,7 @@ xt::xarray<float> deconvolution2d(
   return Deconvolution2D(W, sy, sx, ph, pw, cover_all)(x);
 }
 
-xt::xarray<float> deconvolution2d(
+xt::xarray<float> deconvolution_2d(
     xt::xarray<float> x,
     xt::xarray<float>& W,
     std::size_t s,

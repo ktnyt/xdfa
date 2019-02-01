@@ -37,18 +37,22 @@ class Convolution2D final : public Layer<float> {
 
     xt::xarray<float> forward(xt::xarray<float> x) override {
       forward_queue.push(x);
-      return functions::connection::convolution2d(
+      return functions::connection::convolution_2d(
           x, W, sy, sx, ph, pw, cover_all);
     }
 
     xt::xarray<float> backward(xt::xarray<float> dy) override {
       backward_queue.push(dy);
-      return functions::connection::deconvolution2d(
+      return functions::connection::deconvolution_2d(
           dy, W, sy, sx, ph, pw, cover_all);
     }
 
     void update() override {
-      xt::xarray<float> dW = functions::connection::convolution2d_grad(
+      xt::xarray<float> x = forward_queue.front();
+      xt::xarray<float> dy = backward_queue.front();
+      forward_queue.pop();
+      backward_queue.pop();
+      xt::xarray<float> dW = functions::connection::convolution_2d_grad(
           x, W, dy, sy, sx, ph, pw, cover_all);
       rule(W, dW);
     }

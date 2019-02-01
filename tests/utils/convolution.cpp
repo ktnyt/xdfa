@@ -1,4 +1,5 @@
 #include "doctest.h"
+#include "doctest-helper.h"
 
 #include "xtensor/xarray.hpp"
 #include "xtensor/xbuilder.hpp"
@@ -8,14 +9,11 @@
 #include "xnn/utils/convolution.hpp"
 
 #include <cstdlib>
-#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
 
 #define between(a, b, c) (a <= b && b < c)
-
-static constexpr float epsilon = std::numeric_limits<float>::epsilon();
 
 template <class T>
 std::string to_string(std::vector<T> v) {
@@ -74,7 +72,7 @@ TEST_CASE("image to column conversion") {
           if (between(0, oy, h) && between(0, ox, w)) {
             v -= xt::view(img, xt::all(), xt::all(), oy, ox);
           }
-          REQUIRE(xt::abs(xt::sum(v))() < epsilon);
+          CLOSE(v, epsilon);
         }
       }
     }
@@ -130,7 +128,7 @@ TEST_CASE("column to image conversion") {
         }
       }
 
-      REQUIRE(xt::abs(xt::sum(v - u))() < epsilon);
+      CLOSE(v - u, epsilon);
     }
   }
 }
