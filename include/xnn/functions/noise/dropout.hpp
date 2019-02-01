@@ -23,7 +23,7 @@ class Dropout final : public Function<float> {
   xt::xarray<bool>& mask;
 };
 
-xt::xarray<float> dropout(xt::xarray<float> x, xt::xarray<bool>& mask) {
+inline xt::xarray<float> dropout(xt::xarray<float> x, xt::xarray<bool>& mask) {
   return Dropout(mask)(x);
 }
 

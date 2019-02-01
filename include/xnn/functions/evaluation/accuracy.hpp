@@ -8,7 +8,7 @@ namespace xnn {
 namespace functions {
 namespace evaluation {
 
-xt::xarray<float> accuracy(xt::xarray<int> t, xt::xarray<float> x) {
+inline xt::xarray<float> accuracy(xt::xarray<int> t, xt::xarray<float> x) {
   xt::xarray<int> y = xt::argmax(x, 1);
   xt::xarray<float> f = xt::equal(t, y);
   return xt::sum(f) / f.size();

@@ -20,7 +20,7 @@ class Softmax final : public Function<float> {
   }
 };
 
-xt::xarray<float> softmax(xt::xarray<float> x) { return Softmax()(x); }
+inline xt::xarray<float> softmax(xt::xarray<float> x) { return Softmax()(x); }
 
 }  // namespace activation
 }  // namespace functions

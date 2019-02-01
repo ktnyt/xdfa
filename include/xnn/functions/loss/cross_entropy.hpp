@@ -26,7 +26,8 @@ class CrossEntropy final : public Function<float> {
   xt::xarray<int>& t;
 };
 
-xt::xarray<float> cross_entropy(xt::xarray<float> x, xt::xarray<int>& t) {
+inline xt::xarray<float> cross_entropy(
+    xt::xarray<float> x, xt::xarray<int>& t) {
   return CrossEntropy(t)(x);
 }
 

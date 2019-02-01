@@ -26,9 +26,11 @@ class ReLUGrad : public Function<float> {
   }
 };
 
-xt::xarray<float> relu(xt::xarray<float> x) { return ReLU()(x); }
+inline xt::xarray<float> relu(xt::xarray<float> x) { return ReLU()(x); }
 
-xt::xarray<float> relu_grad(xt::xarray<float> x) { return ReLUGrad()(x); }
+inline xt::xarray<float> relu_grad(xt::xarray<float> x) {
+  return ReLUGrad()(x);
+}
 
 }  // namespace activation
 }  // namespace functions

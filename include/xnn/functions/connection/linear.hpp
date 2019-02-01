@@ -37,12 +37,13 @@ class LinearGrad final : public Function<float> {
   xt::xarray<float>& W;
 };
 
-xt::xarray<float> linear(
+inline xt::xarray<float> linear(
     xt::xarray<float> x, xt::xarray<float>& W, xt::xarray<float>& b) {
   return Linear(W, b)(x);
 }
 
-xt::xarray<float> linear_grad(xt::xarray<float> x, xt::xarray<float>& W) {
+inline xt::xarray<float> linear_grad(
+    xt::xarray<float> x, xt::xarray<float>& W) {
   return LinearGrad(W)(x);
 }
 

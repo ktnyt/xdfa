@@ -38,11 +38,12 @@ class LeakyReLUGrad : public Function<float> {
   float slope;
 };
 
-xt::xarray<float> leaky_relu(xt::xarray<float> x, float slope = 0.2) {
+inline xt::xarray<float> leaky_relu(xt::xarray<float> x, float slope = 0.2) {
   return LeakyReLU(slope)(x);
 }
 
-xt::xarray<float> leaky_relu_grad(xt::xarray<float> x, float slope = 0.2) {
+inline xt::xarray<float> leaky_relu_grad(
+    xt::xarray<float> x, float slope = 0.2) {
   return LeakyReLUGrad(slope)(x);
 }
 

@@ -68,7 +68,7 @@ class AveragePooling2DGrad final : public Pooling2D<float> {
   }
 };
 
-xt::xarray<float> average_pooling_2d(
+inline xt::xarray<float> average_pooling_2d(
     xt::xarray<float> x,
     std::size_t kh,
     std::size_t kw,
@@ -81,7 +81,7 @@ xt::xarray<float> average_pooling_2d(
   return AveragePooling2D(kh, kw, sy, sx, ph, pw, cover_all, return_indices)(x);
 }
 
-xt::xarray<float> average_pooling_2d(
+inline xt::xarray<float> average_pooling_2d(
     xt::xarray<float> x,
     std::size_t k,
     std::size_t s,
@@ -91,7 +91,7 @@ xt::xarray<float> average_pooling_2d(
   return average_pooling_2d(x, k, k, s, s, p, p, cover_all, return_indices);
 }
 
-xt::xarray<float> average_pooling_2d_grad(
+inline xt::xarray<float> average_pooling_2d_grad(
     xt::xarray<float> x,
     std::size_t kh,
     std::size_t kw,
@@ -105,7 +105,7 @@ xt::xarray<float> average_pooling_2d_grad(
       kh, kw, sy, sx, ph, pw, cover_all, return_indices)(x);
 }
 
-xt::xarray<float> average_pooling_2d_grad(
+inline xt::xarray<float> average_pooling_2d_grad(
     xt::xarray<float> x,
     std::size_t k,
     std::size_t s,

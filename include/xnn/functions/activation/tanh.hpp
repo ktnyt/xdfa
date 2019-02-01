@@ -24,9 +24,11 @@ class TanhGrad : public Function<float> {
   }
 };
 
-xt::xarray<float> tanh(xt::xarray<float> x) { return Tanh()(x); }
+inline xt::xarray<float> tanh(xt::xarray<float> x) { return Tanh()(x); }
 
-xt::xarray<float> tanh_grad(xt::xarray<float> x) { return TanhGrad()(x); }
+inline xt::xarray<float> tanh_grad(xt::xarray<float> x) {
+  return TanhGrad()(x);
+}
 
 }  // namespace activation
 }  // namespace functions

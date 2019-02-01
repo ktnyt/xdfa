@@ -108,7 +108,7 @@ class MaxPooling2DGrad final : public Pooling2D<float> {
   xt::xarray<std::size_t>& indices;
 };
 
-std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
+inline std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
     xt::xarray<float> x,
     std::size_t kh,
     std::size_t kw,
@@ -124,7 +124,7 @@ std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
   return {y, indices};
 }
 
-std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
+inline std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
     xt::xarray<float> x,
     std::size_t k,
     std::size_t s,
@@ -134,7 +134,7 @@ std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
   return max_pooling_2d(x, k, k, s, s, p, p, cover_all, return_indices);
 }
 
-xt::xarray<float> max_pooling_2d_grad(
+inline xt::xarray<float> max_pooling_2d_grad(
     xt::xarray<float> x,
     xt::xarray<std::size_t>& indices,
     std::size_t kh,
@@ -149,7 +149,7 @@ xt::xarray<float> max_pooling_2d_grad(
       indices, kh, kw, sy, sx, ph, pw, cover_all, return_indices)(x);
 }
 
-xt::xarray<float> max_pooling_2d_grad(
+inline xt::xarray<float> max_pooling_2d_grad(
     xt::xarray<float> x,
     xt::xarray<std::size_t>& indices,
     std::size_t k,

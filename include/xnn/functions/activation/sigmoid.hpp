@@ -24,9 +24,11 @@ class SigmoidGrad : public Function<float> {
   }
 };
 
-xt::xarray<float> sigmoid(xt::xarray<float> x) { return Sigmoid()(x); }
+inline xt::xarray<float> sigmoid(xt::xarray<float> x) { return Sigmoid()(x); }
 
-xt::xarray<float> sigmoid_grad(xt::xarray<float> x) { return SigmoidGrad()(x); }
+inline xt::xarray<float> sigmoid_grad(xt::xarray<float> x) {
+  return SigmoidGrad()(x);
+}
 
 }  // namespace activation
 }  // namespace functions
