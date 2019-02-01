@@ -7,13 +7,12 @@
 #include "xnn/optimizer.hpp"
 #include "xnn/utils/convolution.hpp"
 
-#include "xtensor-blas/xlinalg.hpp"
 #include "xtensor/xarray.hpp"
 
 namespace xnn {
 namespace layers {
 namespace connection {
-  
+
 class Convolution2D final : public Layer<float> {
   class Impl final : public Layer<float>::Impl {
    public:
@@ -49,22 +48,8 @@ class Convolution2D final : public Layer<float> {
     }
 
     void update() override {
-      xt::xarray<float> x = forward_queue.front();
-      xt::xarray<float> dy = backward_queue.front();
-      forward_queue.pop();
-      backward_queue.pop();
-      xt::xarray<float> col = utils::im2col(
-          x,
-          W.shape()[2],
-          W.shape()[3],
-          sy,
-          sx,
-          ph,
-          pw,
-          static_cast<float>(0),
-          cover_all);
-      xt::xarray<float> dW =
-          xt::linalg::tensordot(dy, col, {0, 2, 3}, {0, 4, 5});
+      xt::xarray<float> dW = functions::connection::convolution2d_grad(
+          x, W, dy, sy, sx, ph, pw, cover_all);
       rule(W, dW);
     }
 

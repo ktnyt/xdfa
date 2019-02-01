@@ -1,6 +1,7 @@
 #ifndef __XNN_FUNCTIONS_CONNECTION_CONVOLUTION_HPP__
 #define __XNN_FUNCTIONS_CONNECTION_CONVOLUTION_HPP__
 
+#include "xnn/function.hpp"
 #include "xnn/utils/convolution.hpp"
 
 #include "xtensor-blas/xlinalg.hpp"
@@ -21,72 +22,6 @@ bool contains(C&& container, const T& value) {
          std::find(container.begin(), container.end(), value);
 }
 
-template <class T>
-auto tensordot(
-    const xt::xarray<T>& a,
-    const xt::xarray<T>& b,
-    const std::vector<std::size_t>& axes_a,
-    const std::vector<std::size_t>& axes_b) {
-  std::vector<std::size_t> as(a.shape().begin(), a.shape().end());
-  std::vector<std::size_t> bs(b.shape().begin(), b.shape().end());
-  std::size_t nda = as.size();
-  std::size_t ndb = bs.size();
-
-  std::vector<std::size_t> notin_a;
-  for (std::size_t k = 0; k < nda; ++k) {
-    if (!contains(axes_a, k)) {
-      notin_a.push_back(k);
-    }
-  }
-  std::vector<std::size_t> newaxes_a(notin_a.begin(), notin_a.end());
-  newaxes_a.insert(newaxes_a.end(), axes_a.begin(), axes_a.end());
-
-  std::size_t N2_a = 1;
-  for (auto axis : axes_a) {
-    N2_a *= as[axis];
-  }
-  std::size_t N1_a = 1;
-  for (auto axis : notin_a) {
-    N1_a *= as[axis];
-  }
-  std::vector<std::size_t> newshape_a = {N1_a, N2_a};
-
-  std::vector<std::size_t> notin_b;
-  for (std::size_t k = 0; k < ndb; ++k) {
-    if (!contains(axes_b, k)) {
-      notin_b.push_back(k);
-    }
-  }
-  std::vector<std::size_t> newaxes_b(notin_b.begin(), notin_b.end());
-  newaxes_b.insert(newaxes_b.end(), axes_b.begin(), axes_b.end());
-
-  std::size_t N2_b = 1;
-  for (auto axis : axes_b) {
-    N2_b *= bs[axis];
-  }
-  std::size_t N1_b = 1;
-  for (auto axis : notin_b) {
-    N1_b *= bs[axis];
-  }
-  std::vector<std::size_t> newshape_b = {N2_b, N1_b};
-
-  std::vector<std::size_t> outshape;
-  for (auto axis : notin_a) {
-    outshape.push_back(as[axis]);
-  }
-  for (auto axis : notin_b) {
-    outshape.push_back(bs[axis]);
-  }
-
-  xt::xarray<T> at = xt::transpose(a, newaxes_a);
-  xt::xarray<T> bt = xt::transpose(b, newaxes_b);
-  at.reshape(newshape_a);
-  bt.reshape(newshape_b);
-  xt::xarray<T> res = xt::linalg::dot(at, bt);
-  res.reshape(outshape);
-  return res;
-}
-
 class Convolution2D final : public Function<float> {
  public:
   Convolution2D(
@@ -97,6 +32,13 @@ class Convolution2D final : public Function<float> {
       std::size_t pw,
       bool cover_all = false)
       : W(W), sy(sy), sx(sx), ph(ph), pw(pw), cover_all(cover_all) {}
+
+  Convolution2D(
+      xt::xarray<float>& W,
+      std::size_t s,
+      std::size_t p,
+      bool cover_all = false)
+      : W(W), sy(s), sx(s), ph(p), pw(p), cover_all(cover_all) {}
 
   xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::xarray<float> col = utils::im2col(
@@ -122,6 +64,50 @@ class Convolution2D final : public Function<float> {
   bool cover_all;
 };
 
+class Convolution2DGrad final : public Function<float> {
+ public:
+  Convolution2DGrad(
+      xt::xarray<float>& W,
+      xt::xarray<float>& dy,
+      std::size_t sy,
+      std::size_t sx,
+      std::size_t ph,
+      std::size_t pw,
+      bool cover_all = false)
+      : W(W), dy(dy), sy(sy), sx(sx), ph(ph), pw(pw), cover_all(cover_all) {}
+
+  Convolution2DGrad(
+      xt::xarray<float>& W,
+      xt::xarray<float>& dy,
+      std::size_t s,
+      std::size_t p,
+      bool cover_all = false)
+      : W(W), dy(dy), sy(s), sx(s), ph(p), pw(p), cover_all(cover_all) {}
+
+  xt::xarray<float> operator()(xt::xarray<float> x) override {
+    xt::xarray<float> col = utils::im2col(
+        x,
+        W.shape()[2],
+        W.shape()[3],
+        sy,
+        sx,
+        ph,
+        pw,
+        static_cast<float>(0),
+        cover_all);
+    return xt::linalg::tensordot(dy, col, {0, 2, 3}, {0, 4, 5});
+  }
+
+ private:
+  xt::xarray<float>& W;
+  xt::xarray<float>& dy;
+  std::size_t sy;
+  std::size_t sx;
+  std::size_t ph;
+  std::size_t pw;
+  bool cover_all;
+};
+
 class Deconvolution2D final : public Function<float> {
  public:
   Deconvolution2D(
@@ -133,8 +119,15 @@ class Deconvolution2D final : public Function<float> {
       bool cover_all = false)
       : W(W), sy(sy), sx(sx), ph(ph), pw(pw), cover_all(cover_all) {}
 
+  Deconvolution2D(
+      xt::xarray<float>& W,
+      std::size_t s,
+      std::size_t p,
+      bool cover_all = false)
+      : W(W), sy(s), sx(s), ph(p), pw(p), cover_all(cover_all) {}
+
   xt::xarray<float> operator()(xt::xarray<float> x) override {
-    xt::xarray<float> tmp = tensordot(W, x, {0}, {1});
+    xt::xarray<float> tmp = xt::linalg::tensordot(W, x, {0}, {1});
     xt::xarray<float> col = xt::transpose(tmp, {3, 0, 1, 2, 4, 5});
     std::size_t h;
     std::size_t w;
@@ -174,6 +167,37 @@ xt::xarray<float> convolution2d(
   return Convolution2D(W, sy, sx, ph, pw, cover_all)(x);
 }
 
+xt::xarray<float> convolution2d(
+    xt::xarray<float> x,
+    xt::xarray<float>& W,
+    std::size_t s,
+    std::size_t p,
+    bool cover_all = false) {
+  return Convolution2D(W, s, p, cover_all)(x);
+}
+
+xt::xarray<float> convolution2d_grad(
+    xt::xarray<float> x,
+    xt::xarray<float>& W,
+    xt::xarray<float>& dy,
+    std::size_t sy,
+    std::size_t sx,
+    std::size_t ph,
+    std::size_t pw,
+    bool cover_all = false) {
+  return Convolution2DGrad(W, dy, sy, sx, ph, pw, cover_all)(x);
+}
+
+xt::xarray<float> convolution2d_grad(
+    xt::xarray<float> x,
+    xt::xarray<float>& W,
+    xt::xarray<float>& dy,
+    std::size_t s,
+    std::size_t p,
+    bool cover_all = false) {
+  return Convolution2DGrad(W, dy, s, p, cover_all)(x);
+}
+
 xt::xarray<float> deconvolution2d(
     xt::xarray<float> x,
     xt::xarray<float>& W,
@@ -183,6 +207,15 @@ xt::xarray<float> deconvolution2d(
     std::size_t pw,
     bool cover_all = false) {
   return Deconvolution2D(W, sy, sx, ph, pw, cover_all)(x);
+}
+
+xt::xarray<float> deconvolution2d(
+    xt::xarray<float> x,
+    xt::xarray<float>& W,
+    std::size_t s,
+    std::size_t p,
+    bool cover_all = false) {
+  return Deconvolution2D(W, s, s, p, p, cover_all)(x);
 }
 
 }  // namespace connection
