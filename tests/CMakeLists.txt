@@ -5,6 +5,7 @@ if (BUILD_XNN_TESTS)
     main_tests
     main.cpp
     functions/connection/convolution.cpp
+    functions/pooling/average_pooling.cpp
     utils/convolution.cpp
   )
   TARGET_LINK_LIBRARIES(main_tests blas)
