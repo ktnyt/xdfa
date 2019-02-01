@@ -33,18 +33,13 @@ class AveragePooling2D : public Layer<float> {
           cover_all(cover_all) {}
 
     xt::xarray<float> forward(xt::xarray<float> x) override {
-      queue.emplace(x.shape()[2], x.shape()[3]);
       return functions::pooling::average_pooling_2d(
           x, kh, kw, sy, sx, ph, pw, cover_all);
     }
 
     xt::xarray<float> backward(xt::xarray<float> dy) override {
-      std::size_t h;
-      std::size_t w;
-      std::tie(h, w) = queue.front();
-      queue.pop();
       return functions::pooling::average_pooling_2d_grad(
-          dy, h, w, kh, kw, sy, sx, ph, pw, cover_all);
+          dy, kh, kw, sy, sx, ph, pw, cover_all);
     }
 
    private:
@@ -55,8 +50,6 @@ class AveragePooling2D : public Layer<float> {
     std::size_t ph;
     std::size_t pw;
     bool cover_all;
-
-    std::queue<std::pair<std::size_t, std::size_t>> queue;
   };
 
  public:
@@ -68,7 +61,8 @@ class AveragePooling2D : public Layer<float> {
       std::size_t ph,
       std::size_t pw,
       bool cover_all = false)
-      : Layer<float>(std::make_shared<Impl>(kh, kw, sy, sx, ph, pw, cover_all)) {}
+      : Layer<float>(
+            std::make_shared<Impl>(kh, kw, sy, sx, ph, pw, cover_all)) {}
 
   AveragePooling2D(
       std::size_t k, std::size_t s, std::size_t p, bool cover_all = false)

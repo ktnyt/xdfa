@@ -7,7 +7,7 @@ namespace xnn {
 namespace functions {
 namespace pooling {
 
-template<class T>
+template <class T>
 class Pooling2D : public Function<T> {
  public:
   Pooling2D(

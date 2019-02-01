@@ -36,18 +36,15 @@ class MaxPooling2D final : public Layer<float> {
       xt::xarray<std::size_t> i;
       std::tie(y, i) = functions::pooling::max_pooling_2d(
           x, kh, kw, sy, sx, ph, pw, cover_all);
-      queue.emplace(x.shape()[2], x.shape()[3], i);
+      queue.push(i);
       return y;
     }
 
     xt::xarray<float> backward(xt::xarray<float> dy) override {
-      std::size_t h;
-      std::size_t w;
-      xt::xarray<std::size_t> i;
-      std::tie(h, w, i) = queue.front();
+      xt::xarray<std::size_t> i = queue.front();
       queue.pop();
       return functions::pooling::max_pooling_2d_grad(
-          dy, h, w, i, kh, kw, sy, sx, ph, pw, cover_all);
+          dy, i, kh, kw, sy, sx, ph, pw, cover_all);
     }
 
    private:
@@ -59,8 +56,7 @@ class MaxPooling2D final : public Layer<float> {
     std::size_t pw;
     bool cover_all;
 
-    std::queue<std::tuple<std::size_t, std::size_t, xt::xarray<std::size_t>>>
-        queue;
+    std::queue<xt::xarray<std::size_t>> queue;
   };
 
  public:
@@ -72,7 +68,8 @@ class MaxPooling2D final : public Layer<float> {
       std::size_t ph,
       std::size_t pw,
       bool cover_all = false)
-      : Layer<float>(std::make_shared<Impl>(kh, kw, sy, sx, ph, pw, cover_all)) {}
+      : Layer<float>(
+            std::make_shared<Impl>(kh, kw, sy, sx, ph, pw, cover_all)) {}
 
   MaxPooling2D(
       std::size_t k, std::size_t s, std::size_t p, bool cover_all = false)

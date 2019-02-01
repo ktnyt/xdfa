@@ -4,7 +4,6 @@
 #include "xnn/functions/pooling/average_pooling.hpp"
 
 #include "xtensor/xarray.hpp"
-#include "xtensor/xio.hpp"
 
 namespace F = xnn::functions;
 
@@ -65,7 +64,7 @@ TEST_CASE("average pooling grad k=2 s=2") {
   e_y /= 4.0f;
   // clang-format on
 
-  xt::xarray<float> a_y = F::pooling::average_pooling_2d_grad(x, 4, 4, 2, 2, 0);
+  xt::xarray<float> a_y = F::pooling::average_pooling_2d_grad(x, 2, 2, 0);
   CLOSE(a_y - e_y, epsilon);
 }
 
@@ -86,6 +85,6 @@ TEST_CASE("average pooling grad k=2 s=2") {
   e_y /= 4.0f;
   // clang-format on
 
-  xt::xarray<float> a_y = F::pooling::average_pooling_2d_grad(x, 4, 4, 2, 1, 0);
+  xt::xarray<float> a_y = F::pooling::average_pooling_2d_grad(x, 2, 1, 0);
   CLOSE(a_y - e_y, epsilon);
 }

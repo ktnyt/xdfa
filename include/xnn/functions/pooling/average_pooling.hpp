@@ -35,8 +35,6 @@ class AveragePooling2D final : public Pooling2D<float> {
 class AveragePooling2DGrad final : public Pooling2D<float> {
  public:
   AveragePooling2DGrad(
-      std::size_t h,
-      std::size_t w,
       std::size_t kh,
       std::size_t kw,
       std::size_t sy,
@@ -45,11 +43,12 @@ class AveragePooling2DGrad final : public Pooling2D<float> {
       std::size_t pw,
       bool cover_all = true,
       bool return_indices = false)
-      : Pooling2D<float>(kh, kw, sy, sx, ph, pw, cover_all, return_indices),
-        h(h),
-        w(w) {}
+      : Pooling2D<float>(kh, kw, sy, sx, ph, pw, cover_all, return_indices) {}
 
   xt::xarray<float> operator()(xt::xarray<float> x) override {
+    std::size_t h;
+    std::size_t w;
+    std::tie(h, w) = calc_out_size(x);
     xt::xarray<float> tmp =
         xt::view(x, xt::all(), xt::all(), xt::newaxis(), xt::newaxis());
     xt::xarray<float> dcol = utils::tile(tmp, {1, 1, kh, kw, 1, 1});
@@ -59,8 +58,14 @@ class AveragePooling2DGrad final : public Pooling2D<float> {
   }
 
  private:
-  std::size_t h;
-  std::size_t w;
+  std::tuple<std::size_t, std::size_t> calc_out_size(
+      const xt::xarray<float>& x) {
+    std::size_t in_h = x.shape()[2];
+    std::size_t in_w = x.shape()[3];
+    std::size_t out_h = utils::get_deconv_outsize(in_h, kh, sy, ph);
+    std::size_t out_w = utils::get_deconv_outsize(in_w, kw, sx, pw);
+    return std::tuple<std::size_t, std::size_t>(out_h, out_w);
+  }
 };
 
 xt::xarray<float> average_pooling_2d(
@@ -88,8 +93,6 @@ xt::xarray<float> average_pooling_2d(
 
 xt::xarray<float> average_pooling_2d_grad(
     xt::xarray<float> x,
-    std::size_t h,
-    std::size_t w,
     std::size_t kh,
     std::size_t kw,
     std::size_t sy,
@@ -99,20 +102,18 @@ xt::xarray<float> average_pooling_2d_grad(
     bool cover_all = true,
     bool return_indices = false) {
   return AveragePooling2DGrad(
-      h, w, kh, kw, sy, sx, ph, pw, cover_all, return_indices)(x);
+      kh, kw, sy, sx, ph, pw, cover_all, return_indices)(x);
 }
 
 xt::xarray<float> average_pooling_2d_grad(
     xt::xarray<float> x,
-    std::size_t h,
-    std::size_t w,
     std::size_t k,
     std::size_t s,
     std::size_t p,
     bool cover_all = true,
     bool return_indices = false) {
   return average_pooling_2d_grad(
-      x, h, w, k, k, s, s, p, p, cover_all, return_indices);
+      x, k, k, s, s, p, p, cover_all, return_indices);
 }
 
 }  // namespace pooling

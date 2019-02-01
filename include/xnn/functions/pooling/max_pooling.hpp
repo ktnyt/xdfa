@@ -7,6 +7,7 @@
 
 #include "xtensor/xarray.hpp"
 #include "xtensor/xbuilder.hpp"
+#include "xtensor/xindex_view.hpp"
 #include "xtensor/xmath.hpp"
 #include "xtensor/xsort.hpp"
 #include "xtensor/xstrided_view.hpp"
@@ -58,8 +59,6 @@ class MaxPooling2D final : public Pooling2D<float> {
 class MaxPooling2DGrad final : public Pooling2D<float> {
  public:
   MaxPooling2DGrad(
-      std::size_t h,
-      std::size_t w,
       xt::xarray<std::size_t>& indices,
       std::size_t kh,
       std::size_t kw,
@@ -70,9 +69,7 @@ class MaxPooling2DGrad final : public Pooling2D<float> {
       bool cover_all = true,
       bool return_indices = false)
       : Pooling2D<float>(kh, kw, sy, sx, ph, pw, cover_all, return_indices),
-        indices(indices),
-        h(h),
-        w(w) {}
+        indices(indices) {}
 
   xt::xarray<float> operator()(xt::xarray<float> x) override {
     std::size_t n = x.shape()[0];
@@ -91,12 +88,23 @@ class MaxPooling2DGrad final : public Pooling2D<float> {
     dcol = utils::swapaxes(dcol, 2, 4);
     dcol = utils::swapaxes(dcol, 3, 5);
 
+    std::size_t h;
+    std::size_t w;
+    std::tie(h, w) = calc_out_size(x);
+
     return utils::col2im(dcol, sy, sx, ph, pw, h, w);
   }
 
  private:
-  std::size_t h;
-  std::size_t w;
+  std::tuple<std::size_t, std::size_t> calc_out_size(
+      const xt::xarray<float>& x) {
+    std::size_t in_h = x.shape()[2];
+    std::size_t in_w = x.shape()[3];
+    std::size_t out_h = utils::get_deconv_outsize(in_h, kh, sy, ph);
+    std::size_t out_w = utils::get_deconv_outsize(in_w, kw, sx, pw);
+    return std::tuple<std::size_t, std::size_t>(out_h, out_w);
+  }
+
   xt::xarray<std::size_t>& indices;
 };
 
@@ -128,8 +136,6 @@ std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
 
 xt::xarray<float> max_pooling_2d_grad(
     xt::xarray<float> x,
-    std::size_t h,
-    std::size_t w,
     xt::xarray<std::size_t>& indices,
     std::size_t kh,
     std::size_t kw,
@@ -140,13 +146,11 @@ xt::xarray<float> max_pooling_2d_grad(
     bool cover_all = true,
     bool return_indices = false) {
   return MaxPooling2DGrad(
-      h, w, indices, kh, kw, sy, sx, ph, pw, cover_all, return_indices)(x);
+      indices, kh, kw, sy, sx, ph, pw, cover_all, return_indices)(x);
 }
 
 xt::xarray<float> max_pooling_2d_grad(
     xt::xarray<float> x,
-    std::size_t h,
-    std::size_t w,
     xt::xarray<std::size_t>& indices,
     std::size_t k,
     std::size_t s,
@@ -154,7 +158,7 @@ xt::xarray<float> max_pooling_2d_grad(
     bool cover_all = true,
     bool return_indices = false) {
   return max_pooling_2d_grad(
-      x, h, w, indices, k, k, s, s, p, p, cover_all, return_indices);
+      x, indices, k, k, s, s, p, p, cover_all, return_indices);
 }
 
 }  // namespace pooling
