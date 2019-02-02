@@ -9,20 +9,16 @@
 #include "xnn/xnn.hpp"
 #include "xnn/loaders/mnist.hpp"
 
-namespace xfe = xnn::functions::evaluation;
-namespace xla = xnn::layers::activation;
-namespace xlc = xnn::layers::connection;
-namespace xll = xnn::layers::loss;
-namespace xlm = xnn::layers::miscellaneous;
-
-namespace xop = xnn::optimizers;
+namespace F = xnn::functions;
+namespace L = xnn::layers;
+namespace O = xnn::optimizers;
 
 int main() {
   auto train_images_path = "mnist/train-images-idx3-ubyte";
   auto train_labels_path = "mnist/train-labels-idx1-ubyte";
 
   xt::xarray<float> x_train =
-      mnist::read_images<float>(train_images_path, true);
+      mnist::read_images<float>(train_images_path, true) / 255.0;
   xt::xarray<int> t_train = mnist::read_labels<int>(train_labels_path);
 
   auto x_shape = x_train.shape();
@@ -36,11 +32,11 @@ int main() {
   std::size_t batchsize = 100;
   std::size_t n_hidden = 1000;
 
-  xla::Sigmoid a0;
-  xlc::LinearFeedback l0(n_input, n_hidden, n_output, xop::Adam(), a0);
-  xlc::Linear l1(n_hidden, 10, xop::Adam());
-  xll::SoftmaxCrossEntropy error;
-  xlm::DirectFeedback<float> network(l0, l1);
+  L::activation::Sigmoid a0;
+  L::connection::LinearFeedback l0(n_input, n_hidden, n_output, O::Adam(), a0);
+  L::connection::Linear l1(n_hidden, 10, O::Adam());
+  L::loss::SoftmaxCrossEntropy error;
+  L::miscellaneous::DirectFeedback<float> network(l0, l1);
 
   for (std::size_t epoch = 0; epoch < n_epochs; ++epoch) {
     xt::xarray<float> loss = 0.0;
@@ -62,7 +58,7 @@ int main() {
       xt::xarray<float> y = network.forward(x);
 
       loss += error.with(t).forward(y) * batchsize;
-      acc += xfe::accuracy(t, y) * batchsize;
+      acc += F::evaluation::accuracy(t, y) * batchsize;
 
       network.backward(error.grads());
       network.update();

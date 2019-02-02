@@ -6,6 +6,7 @@
 #include "xtensor/xrandom.hpp"
 
 #include <cmath>
+#include <tuple>
 
 namespace xnn {
 namespace initializers {

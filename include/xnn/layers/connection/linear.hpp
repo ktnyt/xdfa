@@ -22,7 +22,7 @@ class Linear final : public Layer<float> {
   class Impl final : public Layer<float>::Impl {
    public:
     Impl(std::size_t n_input, std::size_t n_output, Updater<float> rule)
-        : W(initializers::LeCunNormal()({n_input, n_output})),
+        : W(initializers::LeCunNormal()({n_output, n_input})),
           b(xt::zeros<float>({n_output})),
           rule(rule) {}
 
@@ -30,15 +30,15 @@ class Linear final : public Layer<float> {
       forward_queue.push(x);
       if (x.shape().size() > 2) {
         shape_queue.emplace(x.shape().begin(), x.shape().end());
-        x.reshape({x.shape()[0], W.shape()[0]});
+        x.reshape({x.shape()[0], W.shape()[1]});
       }
       return functions::connection::linear(x, W, b);
     }
 
     xt::xarray<float> backward(xt::xarray<float> dy) override {
       backward_queue.push(dy);
-      xt::xarray<float> dx = functions::connection::linear_grad(dy, W);
-      if(!shape_queue.empty()) {
+      xt::xarray<float> dx = functions::connection::linear_back(dy, W);
+      if (!shape_queue.empty()) {
         dx.reshape(shape_queue.front());
         shape_queue.pop();
       }
@@ -52,9 +52,9 @@ class Linear final : public Layer<float> {
       backward_queue.pop();
       if (x.shape().size() > 2) {
         shape_queue.emplace(x.shape().begin(), x.shape().end());
-        x.reshape({x.shape()[0], W.shape()[0]});
+        x.reshape({x.shape()[0], W.shape()[1]});
       }
-      xt::xarray<float> dW = xt::linalg::dot(xt::transpose(x), dy);
+      xt::xarray<float> dW = functions::connection::linear_grad(x, dy);
       rule(W, dW);
       rule(b, xt::sum(dy, {0}));
     }

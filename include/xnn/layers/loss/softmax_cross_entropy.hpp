@@ -28,7 +28,7 @@ class SoftmaxCrossEntropy : public Layer<float> {
 
     xt::xarray<float> backward(xt::xarray<float> x) override {
       auto idx = utils::to_index(labels);
-      auto p = memory;
+      xt::xarray<float> p = memory;
       xt::index_view(p, idx) -= 1;
       return p / labels.shape()[0];
     }

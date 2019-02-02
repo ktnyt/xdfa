@@ -18,7 +18,7 @@ int main() {
   auto train_labels_path = "mnist/train-labels-idx1-ubyte";
 
   xt::xarray<float> x_train =
-      mnist::read_images<float>(train_images_path, false);
+      mnist::read_images<float>(train_images_path, false) / 255.0;
   xt::xarray<int> t_train = mnist::read_labels<int>(train_labels_path);
 
   auto x_shape = x_train.shape();
@@ -35,11 +35,9 @@ int main() {
   L::connection::Convolution2D conv1(1, 20, 5, 1, 0, O::Adam());
   L::activation::ReLU a1;
   L::pooling::MaxPooling2D pool1(2, 2, 0);
-
   L::connection::Convolution2D conv2(20, 50, 5, 1, 0, O::Adam());
   L::activation::ReLU a2;
   L::pooling::MaxPooling2D pool2(2, 2, 0);
-
   L::connection::Linear fc1(4 * 4 * 50, 500, O::Adam());
   L::activation::ReLU a3;
   L::connection::Linear fc2(500, 10, O::Adam());
@@ -64,10 +62,9 @@ int main() {
                 << std::setw(5) << i + batchsize << " / " << n_train
                 << std::flush;
       xt::xarray<float> x = xt::view(x_train, xt::range(i, i + batchsize));
-      xt::xarray<float> t = xt::view(t_train, xt::range(i, i + batchsize));
+      xt::xarray<int> t = xt::view(t_train, xt::range(i, i + batchsize));
 
       xt::xarray<float> y = network.forward(x);
-
       loss += error.with(t).forward(y) * batchsize;
       acc += F::evaluation::accuracy(t, y) * batchsize;
 

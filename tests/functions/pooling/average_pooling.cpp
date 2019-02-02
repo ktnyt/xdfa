@@ -20,10 +20,25 @@ TEST_CASE("average pooling k=2 s=2") {
     {4, 4},
     {1.5, -0.5},
   }}};
+  
+  xt::xarray<float> dy = {{{
+    {4, 3},
+    {1.5, -0.5},
+  }}};
+
+  xt::xarray<float> e_dx = {{{
+    {4, 4, 3, 3},
+    {4, 4, 3, 3},
+    {1.5, 1.5, -0.5, -0.5},
+    {1.5, 1.5, -0.5, -0.5}
+  }}};
+  e_dx /= 4.0f;
   // clang-format on
 
   xt::xarray<float> a_y = F::pooling::average_pooling_2d(x, 2, 2, 0);
+  xt::xarray<float> a_dx = F::pooling::average_pooling_2d_grad(dy, 2, 2, 0);
   CLOSE(a_y - e_y, epsilon);
+  CLOSE(a_dx - e_dx, epsilon);
 }
 
 TEST_CASE("average pooling k=2 s=1") {
@@ -40,51 +55,25 @@ TEST_CASE("average pooling k=2 s=1") {
     {22.0, 16.0, 14.0},
     {6.0, 1.0, -2.0}
   }}};
-
   e_y /= 4.0f;
-  // clang-format on
-
-  xt::xarray<float> a_y = F::pooling::average_pooling_2d(x, 2, 1, 0);
-  CLOSE(a_y - e_y, epsilon);
-}
-
-TEST_CASE("average pooling grad k=2 s=2") {
-  // clang-format off
-  xt::xarray<float> x = {{{
-    {4, 3},
-    {1.5, -0.5},
-  }}};
-
-  xt::xarray<float> e_y = {{{
-    {4, 4, 3, 3},
-    {4, 4, 3, 3},
-    {1.5, 1.5, -0.5, -0.5},
-    {1.5, 1.5, -0.5, -0.5}
-  }}};
-  e_y /= 4.0f;
-  // clang-format on
-
-  xt::xarray<float> a_y = F::pooling::average_pooling_2d_grad(x, 2, 2, 0);
-  CLOSE(a_y - e_y, epsilon);
-}
-
-TEST_CASE("average pooling grad k=2 s=2") {
-  // clang-format off
-  xt::xarray<float> x = {{{
+  
+  xt::xarray<float> dy = {{{
     {0, 1, 2},
     {8, 7, 5},
     {4, 3, 1}
   }}};
 
-  xt::xarray<float> e_y = {{{
+  xt::xarray<float> e_dx = {{{
     {0, 1, 3, 2},
     {8, 16, 15, 7},
     {12, 22, 16, 6},
     {4, 7, 4, 1}
   }}};
-  e_y /= 4.0f;
+  e_dx /= 4.0f;
   // clang-format on
 
-  xt::xarray<float> a_y = F::pooling::average_pooling_2d_grad(x, 2, 1, 0);
+  xt::xarray<float> a_y = F::pooling::average_pooling_2d(x, 2, 1, 0);
+  xt::xarray<float> a_dx = F::pooling::average_pooling_2d_grad(dy, 2, 1, 0);
   CLOSE(a_y - e_y, epsilon);
+  CLOSE(a_dx - e_dx, epsilon);
 }

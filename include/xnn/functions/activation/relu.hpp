@@ -22,6 +22,7 @@ class ReLUGrad : public Function<float> {
  public:
   xt::xarray<float> operator()(xt::xarray<float> x) override {
     xt::filtration(x, x > 0) = 1.0;
+    xt::filtration(x, x <= 0) = 0.0;
     return x;
   }
 };
