@@ -120,7 +120,7 @@ inline std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
     bool return_indices = false) {
   MaxPooling2D f(kh, kw, sy, sx, ph, pw, cover_all, return_indices);
   xt::xarray<float> y = f(x);
-  xt::xarray<float> indices = f.get_indices();
+  xt::xarray<std::size_t> indices = f.get_indices();
   return {y, indices};
 }
 

@@ -30,7 +30,7 @@ class SoftmaxCrossEntropy : public Layer<float> {
       auto idx = utils::to_index(labels);
       xt::xarray<float> p = memory;
       xt::index_view(p, idx) -= 1;
-      return p / labels.shape()[0];
+      return p / static_cast<float>(labels.shape()[0]);
     }
 
    private:
