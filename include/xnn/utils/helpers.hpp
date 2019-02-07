@@ -12,6 +12,11 @@
 namespace xnn {
 namespace utils {
 
+template <class E>
+std::size_t len(E&& array) {
+  return array.shape()[0];
+}
+
 std::vector<std::vector<int>> to_index(xt::xarray<int> t) {
   std::vector<std::vector<int>> ret;
   for (int i = 0; i < t.size(); ++i) {

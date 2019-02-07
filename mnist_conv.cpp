@@ -6,31 +6,23 @@
 
 #include "xtensor/xarray.hpp"
 
-#include "xnn/loaders/mnist.hpp"
+#include "xnn/datasets/mnist.hpp"
 #include "xnn/xnn.hpp"
 
 namespace F = xnn::functions;
 namespace L = xnn::layers;
 namespace O = xnn::optimizers;
+namespace D = xnn::datasets;
 
 int main() {
-  auto train_images_path = "mnist/train-images-idx3-ubyte";
-  auto train_labels_path = "mnist/train-labels-idx1-ubyte";
+  std::size_t batchsize = 100;
+  D::mnist::Training<float, int> dataset("mnist", batchsize, false);
+  dataset.x_data() /= 255.0f;
 
-  xt::xarray<float> x_train =
-      mnist::read_images<float>(train_images_path, false) / 255.0;
-  xt::xarray<int> t_train = mnist::read_labels<int>(train_labels_path);
-
-  auto x_shape = x_train.shape();
-  auto t_shape = t_train.shape();
-
-  std::size_t n_train = x_shape[0];
-  std::size_t n_input = x_shape[1];
-  std::size_t n_output = 10;
+  std::size_t n_train = dataset.x_data().shape()[0];
+  std::size_t n_input = dataset.x_data().shape()[1];
 
   std::size_t n_epochs = 20;
-  std::size_t batchsize = 100;
-  std::size_t n_hidden = 1000;
 
   L::connection::Convolution2D conv1(1, 20, 5, 1, 0, O::Adam());
   L::activation::ReLU a1;
@@ -51,26 +43,23 @@ int main() {
     xt::xarray<float> loss = 0.0;
     xt::xarray<float> acc = 0.0;
 
-    xt::random::seed(epoch);
-    xt::random::shuffle(x_train);
-    xt::random::seed(epoch);
-    xt::random::shuffle(t_train);
+    std::size_t batchnum = 0;
 
-    for (std::size_t i = 0; i < n_train; i += batchsize) {
+    auto train = [&](xt::xarray<float>& x, xt::xarray<int>& t) {
       std::cout << "\rEpoch " << std::right << std::setfill(' ') << std::setw(2)
                 << epoch + 1 << " " << std::right << std::setfill('0')
-                << std::setw(5) << i + batchsize << " / " << n_train
+                << std::setw(5) << ++batchnum * batchsize << " / " << n_train
                 << std::flush;
-      xt::xarray<float> x = xt::view(x_train, xt::range(i, i + batchsize));
-      xt::xarray<int> t = xt::view(t_train, xt::range(i, i + batchsize));
-
       xt::xarray<float> y = network.forward(x);
       loss += error.with(t).forward(y) * batchsize;
       acc += F::evaluation::accuracy(t, y) * batchsize;
 
       network.backward(error.grads());
       network.update();
-    }
+    };
+
+    dataset.shuffle();
+    dataset.for_each(batchsize, train);
 
     std::cout << "\rEpoch " << std::right << std::setfill(' ') << std::setw(2)
               << epoch + 1 << " Loss: " << std::scientific << loss / n_train

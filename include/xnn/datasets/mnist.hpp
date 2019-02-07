@@ -1,13 +1,17 @@
-#ifndef __MNIST_HPP__
-#define __MNIST_HPP__
+#ifndef __XNN_DATASETS_MNIST_HPP__
+#define __XNN_DATASETS_MNIST_HPP__
+
+#include "xnn/dataset.hpp"
 
 #include <fstream>
 #include <iostream>
+#include <tuple>
 #include <vector>
 
-#include <xtensor/xarray.hpp>
-
+namespace xnn {
+namespace datasets {
 namespace mnist {
+namespace internal {
 
 int reverse_int(int i) {
   unsigned char i0, i1, i2, i3;
@@ -20,7 +24,7 @@ int reverse_int(int i) {
 }
 
 template <class T>
-xt::xarray<T> read_images(const char* path, bool flatten = false) {
+xt::xarray<T> read_images(std::string path, bool flatten) {
   std::ifstream file(path, std::ios::binary);
   if (!file.is_open()) {
     std::cerr << "failed to open image file: " << path << std::endl;
@@ -87,7 +91,7 @@ xt::xarray<T> read_images(const char* path, bool flatten = false) {
 }
 
 template <class T>
-xt::xarray<T> read_labels(const char* path) {
+xt::xarray<T> read_labels(std::string path) {
   std::ifstream file(path, std::ios::binary);
   if (!file.is_open()) {
     std::cerr << "failed to open label file: " << path << std::endl;
@@ -126,6 +130,38 @@ xt::xarray<T> read_labels(const char* path) {
   return array;
 }
 
-}  // namespace mnist
+template <class T>
+xt::xarray<T> read_train_images(std::string path, bool flatten) {
+  return read_images<T>(path + "/train-images-idx3-ubyte", flatten);
+}
 
-#endif  // __MNIST_HPP__
+template <class T>
+xt::xarray<T> read_train_labels(std::string path) {
+  return read_labels<T>(path + "/train-labels-idx1-ubyte");
+}
+
+}  // namespace internal
+
+template <class T1, class T2>
+class Training final : public Dataset<T1, T2> {
+ public:
+  Training(std::string path, std::size_t batchsize, bool flatten)
+      : Dataset<T1, T2>(
+            internal::read_train_images<T1>(path, flatten),
+            internal::read_train_labels<T2>(path),
+            batchsize) {}
+
+  template <class S>
+  Training(std::string path, std::size_t batchsize, bool flatten, S seed)
+      : Dataset<T1, T2>(
+            internal::read_train_images<T1>(path, flatten),
+            internal::read_train_labels<T2>(path),
+            batchsize,
+            seed) {}
+};
+
+}  // namespace mnist
+}  // namespace datasets
+}  // namespace xnn
+
+#endif  // __XNN_DATASETS_MNIST_HPP__
