@@ -15,31 +15,38 @@ namespace L = xnn::layers;
 namespace O = xnn::optimizers;
 namespace D = xnn::datasets;
 
+using F::evaluation::accuracy;
+using L::activation::ReLU;
+using L::connection::Convolution2D;
+using L::connection::Linear;
+using L::loss::SoftmaxCrossEntropy;
+using L::manipulation::Flatten;
+using L::network::Serial;
+using L::pooling::MaxPooling2D;
+
 int main() {
   std::random_device rd;
   D::mnist::Training<float, int> dataset("mnist", false, rd());
   dataset.x_data() /= 255.0f;
 
-  std::size_t n_train = dataset.x_data().shape()[0];
-  std::size_t n_input = dataset.x_data().shape()[1];
-
+  std::size_t n_train = dataset.size();
   std::size_t n_epochs = 20;
   std::size_t batchsize = 100;
 
-  L::connection::Convolution2D conv1(1, 20, 5, 1, 0, O::Adam());
-  L::activation::ReLU a1;
-  L::pooling::MaxPooling2D pool1(2, 2, 0);
-  L::connection::Convolution2D conv2(20, 50, 5, 1, 0, O::Adam());
-  L::activation::ReLU a2;
-  L::pooling::MaxPooling2D pool2(2, 2, 0);
-  L::connection::Linear fc1(4 * 4 * 50, 500, O::Adam());
-  L::activation::ReLU a3;
-  L::connection::Linear fc2(500, 10, O::Adam());
+  Convolution2D conv1(1, 20, 5, 1, 0, O::Adam());
+  ReLU a1;
+  MaxPooling2D pool1(2, 2, 0);
+  Convolution2D conv2(20, 50, 5, 1, 0, O::Adam());
+  ReLU a2;
+  MaxPooling2D pool2(2, 2, 0);
+  Flatten<float> flat;
+  Linear fc1(4 * 4 * 50, 500, O::Adam());
+  ReLU a3;
+  Linear fc2(500, 10, O::Adam());
 
-  L::miscellaneous::Serial<float> network(
-      conv1, a1, pool1, conv2, a2, pool2, fc1, a3, fc2);
+  Serial<float> network(conv1, a1, pool1, conv2, a2, pool2, flat, fc1, a3, fc2);
 
-  L::loss::SoftmaxCrossEntropy error;
+  SoftmaxCrossEntropy error;
 
   for (std::size_t epoch = 0; epoch < n_epochs; ++epoch) {
     xt::xarray<float> loss = 0.0;
@@ -54,7 +61,7 @@ int main() {
                 << std::flush;
       xt::xarray<float> y = network.forward(x);
       loss += error.with(t).forward(y) * static_cast<float>(batchsize);
-      acc += F::evaluation::accuracy(t, y) * static_cast<float>(batchsize);
+      acc += accuracy(t, y) * static_cast<float>(batchsize);
 
       network.backward(error.grads());
       network.update();

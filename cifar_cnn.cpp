@@ -20,28 +20,17 @@ using L::activation::ReLU;
 using L::connection::Convolution2D;
 using L::connection::Linear;
 using L::loss::SoftmaxCrossEntropy;
-using L::miscellaneous::Serial;
+using L::manipulation::Flatten;
+using L::network::Serial;
 using L::noise::Dropout;
 using L::pooling::MaxPooling2D;
-
-template <class E>
-void print_shape(E&& array) {
-  for (std::size_t i = 0; i < array.shape().size(); ++i) {
-    if (i > 0) {
-      std::cout << ", ";
-    }
-    std::cout << array.shape()[i];
-  }
-  std::cout << std::endl;
-}
 
 int main() {
   std::random_device rd;
   D::cifar10::Training<float, int> dataset("cifar10", false, rd());
   dataset.x_data() /= 255.0f;
 
-  std::size_t n_train = dataset.x_data().shape()[0];
-
+  std::size_t n_train = dataset.size();
   std::size_t n_epochs = 20;
   std::size_t batchsize = 100;
 
@@ -59,6 +48,8 @@ int main() {
   MaxPooling2D pool2(2, 2, 0);
   Dropout d2(0.25);
 
+  Flatten<float> flat;
+
   Linear fc1(5 * 5 * 64, 512, O::Adam());
   ReLU a3;
   Linear fc2(512, 10, O::Adam());
@@ -66,7 +57,7 @@ int main() {
   Serial<float> conv1(conv1_1, a1_1, conv1_2, a1_2, pool1, d1);
   Serial<float> conv2(conv2_1, a2_1, conv2_2, a2_2, pool2, d2);
   Serial<float> fc(fc1, a3, fc2);
-  Serial<float> network(conv1, conv2, fc);
+  Serial<float> network(conv1, conv2, flat, fc);
 
   SoftmaxCrossEntropy error;
 

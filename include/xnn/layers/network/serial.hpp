@@ -1,16 +1,19 @@
-#ifndef __XNN_LAYERS_MISCELLANEOUS_DIRECT_FEEDBACK_HPP__
-#define __XNN_LAYERS_MISCELLANEOUS_DIRECT_FEEDBACK_HPP__
+#ifndef __XNN_LAYERS_NETWORK_SERIAL_HPP__
+#define __XNN_LAYERS_NETWORK_SERIAL_HPP__
 
 #include "xnn/layer.hpp"
 #include "xnn/utils/helpers.hpp"
 
+#include <memory>
+#include <vector>
+
 namespace xnn {
 namespace layers {
-namespace miscellaneous {
+namespace network {
 
 template <class T>
-class DirectFeedback final : public Layer<T> {
-  class Impl : public Layer<float>::Impl {
+class Serial final : public Layer<T> {
+  class Impl : public Layer<T>::Impl {
    public:
     template <class Iterable>
     Impl(Iterable iterable) : impls(iterable.begin(), iterable.end()) {}
@@ -25,11 +28,12 @@ class DirectFeedback final : public Layer<T> {
     }
 
     xt::xarray<T> backward(const xt::xarray<T>& dy) override {
-      for (auto impl = impls.begin(); impl != impls.end(); ++impl) {
+      xt::xarray<T> dx = dy;
+      for (auto impl = impls.rbegin(); impl != impls.rend(); ++impl) {
         auto f = impl->get();
-        f->backward(dy);
+        dx = f->backward(dx);
       }
-      return dy;
+      return dx;
     }
 
     void update() override {
@@ -45,13 +49,13 @@ class DirectFeedback final : public Layer<T> {
 
  public:
   template <class... Args>
-  DirectFeedback(Args... args)
+  Serial(Args... args)
       : Layer<T>(std::shared_ptr<Impl>(
             new Impl(utils::to_impl<T>(std::forward<Args>(args)...)))) {}
 };
 
-}  // namespace miscellaneous
+}  // namespace network
 }  // namespace layers
 }  // namespace xnn
 
-#endif  // __XNN_LAYERS_MISCELLANEOUS_DIRECT_FEEDBACK_HPP__
+#endif  // __XNN_LAYERS_NETWORK_SERIAL_HPP__

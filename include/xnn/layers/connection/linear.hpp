@@ -29,20 +29,12 @@ class Linear final : public Layer<float> {
 
     xt::xarray<float> forward(const xt::xarray<float>& x) override {
       forward_queue.push(x);
-      if (x.shape().size() > 2) {
-        shape_queue.emplace(x.shape().begin(), x.shape().end());
-        xt::xarray<float> y = xt::reshape_view(x, {x.shape()[0], W.shape()[1]});
-      }
       return functions::connection::linear(x, W, b);
     }
 
     xt::xarray<float> backward(const xt::xarray<float>& dy) override {
       backward_queue.push(dy);
       xt::xarray<float> dx = functions::connection::linear_back(dy, W);
-      if (!shape_queue.empty()) {
-        dx.reshape(shape_queue.front());
-        shape_queue.pop();
-      }
       return dx;
     }
 
@@ -51,10 +43,6 @@ class Linear final : public Layer<float> {
       xt::xarray<float> dy = backward_queue.front();
       forward_queue.pop();
       backward_queue.pop();
-      if (x.shape().size() > 2) {
-        shape_queue.emplace(x.shape().begin(), x.shape().end());
-        x.reshape({x.shape()[0], W.shape()[1]});
-      }
       xt::xarray<float> dW = functions::connection::linear_grad(x, dy);
       rule(W, dW);
       rule(b, xt::sum(dy, {0}));
@@ -68,7 +56,6 @@ class Linear final : public Layer<float> {
 
     std::queue<xt::xarray<float>> forward_queue;
     std::queue<xt::xarray<float>> backward_queue;
-    std::queue<std::vector<std::size_t>> shape_queue;
   };
 
  public:

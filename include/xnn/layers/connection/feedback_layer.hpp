@@ -1,5 +1,5 @@
-#ifndef __XNN_LAYERS_MISCELLANEOUS_FEEDBACK_LAYER_HPP__
-#define __XNN_LAYERS_MISCELLANEOUS_FEEDBACK_LAYER_HPP__
+#ifndef __XNN_LAYERS_CONNECTION_FEEDBACK_LAYER_HPP__
+#define __XNN_LAYERS_CONNECTION_FEEDBACK_LAYER_HPP__
 
 #include "xnn/layer.hpp"
 
@@ -9,7 +9,7 @@
 
 namespace xnn {
 namespace layers {
-namespace miscellaneous {
+namespace connection {
 
 class FeedbackLayer : public Layer<float> {
   template <class C, class A>
@@ -51,4 +51,4 @@ class FeedbackLayer : public Layer<float> {
 }  // namespace layers
 }  // namespace xnn
 
-#endif  // __XNN_LAYERS_MISCELLANEOUS_FEEDBACK_LAYER_HPP__
+#endif  // __XNN_LAYERS_CONNECTION_FEEDBACK_LAYER_HPP__

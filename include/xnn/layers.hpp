@@ -3,9 +3,9 @@
 
 #include "xnn/layers/activation.hpp"
 #include "xnn/layers/connection.hpp"
-#include "xnn/layers/evaluation.hpp"
 #include "xnn/layers/loss.hpp"
-#include "xnn/layers/miscellaneous.hpp"
+#include "xnn/layers/manipulation.hpp"
+#include "xnn/layers/network.hpp"
 #include "xnn/layers/noise.hpp"
 #include "xnn/layers/pooling.hpp"
 

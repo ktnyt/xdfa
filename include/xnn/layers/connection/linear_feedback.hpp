@@ -2,8 +2,8 @@
 #define __XNN_LAYERS_CONNECTION_LINEAR_FEEDBACK_HPP__
 
 #include "xnn/initializers.hpp"
+#include "xnn/layers/connection/feedback_layer.hpp"
 #include "xnn/layers/connection/linear.hpp"
-#include "xnn/layers/miscellaneous/feedback_layer.hpp"
 
 #include "xtensor-blas/xlinalg.hpp"
 
@@ -27,7 +27,7 @@ class linear_feedback {
 
 }  // namespace internal
 
-class LinearFeedback final : public miscellaneous::FeedbackLayer {
+class LinearFeedback final : public FeedbackLayer {
  public:
   template <class A>
   LinearFeedback(

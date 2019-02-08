@@ -14,24 +14,31 @@ namespace L = xnn::layers;
 namespace O = xnn::optimizers;
 namespace D = xnn::datasets;
 
+using F::evaluation::accuracy;
+using L::activation::Sigmoid;
+using L::connection::Linear;
+using L::connection::LinearFeedback;
+using L::loss::SoftmaxCrossEntropy;
+using L::network::DirectFeedback;
+
 int main() {
   std::random_device rd;
   D::mnist::Training<float, int> dataset("mnist", true, rd());
   dataset.x_data() /= 255.0f;
 
-  std::size_t n_train = dataset.x_data().shape()[0];
-  std::size_t n_input = dataset.x_data().shape()[1];
-  std::size_t n_hidden = 1000;
-  std::size_t n_output = 10;
-
+  std::size_t n_train = dataset.size();
   std::size_t n_epochs = 20;
   std::size_t batchsize = 100;
 
-  L::activation::Sigmoid a0;
-  L::connection::LinearFeedback l0(n_input, n_hidden, n_output, O::Adam(), a0);
-  L::connection::Linear l1(n_hidden, n_output, O::Adam());
-  L::loss::SoftmaxCrossEntropy error;
-  L::miscellaneous::DirectFeedback<float> network(l0, l1);
+  std::size_t n_input = dataset.leading();
+  std::size_t n_hidden = 1000;
+  std::size_t n_output = 10;
+
+  Sigmoid a0;
+  LinearFeedback l0(n_input, n_hidden, n_output, O::Adam(), a0);
+  Linear l1(n_hidden, n_output, O::Adam());
+  SoftmaxCrossEntropy error;
+  DirectFeedback<float> network(l0, l1);
 
   for (std::size_t epoch = 0; epoch < n_epochs; ++epoch) {
     xt::xarray<float> loss = 0.0;
@@ -48,7 +55,7 @@ int main() {
       xt::xarray<float> y = network.forward(x);
 
       loss += error.with(t).forward(y) * static_cast<float>(batchsize);
-      acc += F::evaluation::accuracy(t, y) * static_cast<float>(batchsize);
+      acc += accuracy(t, y) * static_cast<float>(batchsize);
 
       network.backward(error.grads());
       network.update();

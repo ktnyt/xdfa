@@ -14,7 +14,7 @@ namespace connection {
 
 class Linear final : public Function<float> {
  public:
-  Linear(const xt::xarray<float>& W, xt::xarray<float>& b) : W(W), b(b) {}
+  Linear(const xt::xarray<float>& W, const xt::xarray<float>& b) : W(W), b(b) {}
 
   xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     return xt::linalg::dot(x, xt::transpose(W)) + b;
@@ -22,7 +22,7 @@ class Linear final : public Function<float> {
 
  private:
   const xt::xarray<float>& W;
-  xt::xarray<float>& b;
+  const xt::xarray<float>& b;
 };
 
 class LinearBack final : public Function<float> {
@@ -52,7 +52,7 @@ class LinearGrad final : public Function<float> {
 inline xt::xarray<float> linear(
     const xt::xarray<float>& x,
     const xt::xarray<float>& W,
-    xt::xarray<float>& b) {
+    const xt::xarray<float>& b) {
   return Linear(W, b)(x);
 }
 

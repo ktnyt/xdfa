@@ -44,6 +44,14 @@ class Dataset {
     xt::random::shuffle(t, rng2);
   }
 
+  std::size_t size() const {
+    return x.shape()[0];
+  }
+
+  std::size_t leading() const {
+    return x.shape()[1];
+  }
+
   xt::xarray<T1>& x_data() { return x; }
   xt::xarray<T2>& t_data() { return t; }
 

@@ -39,7 +39,7 @@ inline std::size_t get_deconv_outsize(
 
 template <class T>
 xt::xarray<T> im2col(
-    xt::xarray<T> img,
+    const xt::xarray<T>& img,
     std::size_t kh,
     std::size_t kw,
     std::size_t sy,
@@ -88,7 +88,7 @@ xt::xarray<T> im2col(
 
 template <class T>
 xt::xarray<T> col2im(
-    xt::xarray<T> col,
+    const xt::xarray<T>& col,
     std::size_t sy,
     std::size_t sx,
     std::size_t ph,
