@@ -15,7 +15,7 @@ class DirectFeedback final : public Layer<T> {
     template <class Iterable>
     Impl(Iterable iterable) : impls(iterable.begin(), iterable.end()) {}
 
-    xt::xarray<T> forward(xt::xarray<T> x) override {
+    xt::xarray<T> forward(const xt::xarray<T>& x) override {
       xt::xarray<T> y = x;
       for (auto impl = impls.begin(); impl != impls.end(); ++impl) {
         auto f = impl->get();
@@ -24,7 +24,7 @@ class DirectFeedback final : public Layer<T> {
       return y;
     }
 
-    xt::xarray<T> backward(xt::xarray<T> dy) override {
+    xt::xarray<T> backward(const xt::xarray<T>& dy) override {
       for (auto impl = impls.begin(); impl != impls.end(); ++impl) {
         auto f = impl->get();
         f->backward(dy);

@@ -16,14 +16,14 @@ class Dropout final : public Layer<float> {
    public:
     Impl(float ratio) : ratio(ratio) {}
 
-    xt::xarray<float> forward(xt::xarray<float> x) override {
+    xt::xarray<float> forward(const xt::xarray<float>& x) override {
       if (x.shape() != mask.shape()) {
         mask = xt::random::rand(x.shape(), 0.0, 1.0) < ratio;
       }
       return functions::noise::dropout(x, mask);
     }
 
-    xt::xarray<float> backward(xt::xarray<float> dy) override {
+    xt::xarray<float> backward(const xt::xarray<float>& dy) override {
       return functions::noise::dropout(dy, mask);
     }
 

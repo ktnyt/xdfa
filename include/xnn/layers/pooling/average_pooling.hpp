@@ -32,12 +32,12 @@ class AveragePooling2D : public Layer<float> {
           pw(pw),
           cover_all(cover_all) {}
 
-    xt::xarray<float> forward(xt::xarray<float> x) override {
+    xt::xarray<float> forward(const xt::xarray<float>& x) override {
       return functions::pooling::average_pooling_2d(
           x, kh, kw, sy, sx, ph, pw, cover_all);
     }
 
-    xt::xarray<float> backward(xt::xarray<float> dy) override {
+    xt::xarray<float> backward(const xt::xarray<float>& dy) override {
       return functions::pooling::average_pooling_2d_grad(
           dy, kh, kw, sy, sx, ph, pw, cover_all);
     }

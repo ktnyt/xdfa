@@ -35,13 +35,13 @@ class Convolution2D final : public Layer<float> {
           rule(rule),
           cover_all(cover_all) {}
 
-    xt::xarray<float> forward(xt::xarray<float> x) override {
+    xt::xarray<float> forward(const xt::xarray<float>& x) override {
       forward_queue.push(x);
       return functions::connection::convolution_2d(
           x, W, sy, sx, ph, pw, cover_all);
     }
 
-    xt::xarray<float> backward(xt::xarray<float> dy) override {
+    xt::xarray<float> backward(const xt::xarray<float>& dy) override {
       backward_queue.push(dy);
       return functions::connection::deconvolution_2d(
           dy, W, sy, sx, ph, pw, cover_all);

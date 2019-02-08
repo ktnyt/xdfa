@@ -21,11 +21,11 @@ class FeedbackLayer : public Layer<float> {
         std::function<xt::xarray<float>(xt::xarray<float>)> feedback)
         : connection(connection), activation(activation), feedback(feedback) {}
 
-    xt::xarray<float> forward(xt::xarray<float> x) override {
+    xt::xarray<float> forward(const xt::xarray<float>& x) override {
       return activation.forward(connection.forward(x));
     };
 
-    xt::xarray<float> backward(xt::xarray<float> dy) override {
+    xt::xarray<float> backward(const xt::xarray<float>& dy) override {
       return connection.backward(activation.backward(feedback(dy)));
     }
 

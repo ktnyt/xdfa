@@ -9,6 +9,7 @@
 #include "xtensor/xarray.hpp"
 #include "xtensor/xbuilder.hpp"
 #include "xtensor/xmath.hpp"
+#include "xtensor/xstrided_view.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -26,16 +27,16 @@ class Linear final : public Layer<float> {
           b(xt::zeros<float>({n_output})),
           rule(rule) {}
 
-    xt::xarray<float> forward(xt::xarray<float> x) override {
+    xt::xarray<float> forward(const xt::xarray<float>& x) override {
       forward_queue.push(x);
       if (x.shape().size() > 2) {
         shape_queue.emplace(x.shape().begin(), x.shape().end());
-        x.reshape({x.shape()[0], W.shape()[1]});
+        xt::xarray<float> y = xt::reshape_view(x, {x.shape()[0], W.shape()[1]});
       }
       return functions::connection::linear(x, W, b);
     }
 
-    xt::xarray<float> backward(xt::xarray<float> dy) override {
+    xt::xarray<float> backward(const xt::xarray<float>& dy) override {
       backward_queue.push(dy);
       xt::xarray<float> dx = functions::connection::linear_back(dy, W);
       if (!shape_queue.empty()) {

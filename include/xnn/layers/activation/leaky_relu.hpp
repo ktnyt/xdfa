@@ -18,12 +18,12 @@ class LeakyReLU final : public Layer<float> {
    public:
     Impl(float slope) : slope(slope) {}
 
-    xt::xarray<float> forward(xt::xarray<float> x) override {
+    xt::xarray<float> forward(const xt::xarray<float>& x) override {
       queue.push(functions::activation::leaky_relu(x, slope));
       return queue.front();
     }
 
-    xt::xarray<float> backward(xt::xarray<float> d) override {
+    xt::xarray<float> backward(const xt::xarray<float>& d) override {
       xt::xarray<float> y = queue.front();
       queue.pop();
       return d * functions::activation::leaky_relu_grad(y, slope);

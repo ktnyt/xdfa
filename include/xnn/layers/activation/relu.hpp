@@ -16,12 +16,12 @@ namespace activation {
 class ReLU final : public Layer<float> {
   class Impl final : public Layer<float>::Impl {
    public:
-    xt::xarray<float> forward(xt::xarray<float> x) override {
+    xt::xarray<float> forward(const xt::xarray<float>& x) override {
       queue.push(functions::activation::relu(x));
       return queue.front();
     }
 
-    xt::xarray<float> backward(xt::xarray<float> d) override {
+    xt::xarray<float> backward(const xt::xarray<float>& d) override {
       xt::xarray<float> y = queue.front();
       queue.pop();
       return d * functions::activation::relu_grad(y);

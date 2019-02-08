@@ -21,12 +21,12 @@ class SoftmaxCrossEntropy : public Layer<float> {
    public:
     void set_labels(xt::xarray<int> t) { labels = t; }
 
-    xt::xarray<float> forward(xt::xarray<float> x) override {
+    xt::xarray<float> forward(const xt::xarray<float>& x) override {
       memory = functions::activation::softmax(x);
       return functions::loss::cross_entropy(memory, labels);
     }
 
-    xt::xarray<float> backward(xt::xarray<float> x) override {
+    xt::xarray<float> backward(const xt::xarray<float>& x) override {
       auto idx = utils::to_index(labels);
       xt::xarray<float> p = memory;
       xt::index_view(p, idx) -= 1;

@@ -17,7 +17,7 @@ class linear_feedback {
   linear_feedback(std::size_t n_input, std::size_t n_output)
       : B(initializers::LeCunNormal()({n_input, n_output})) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) {
     return xt::linalg::dot(x, B);
   };
 

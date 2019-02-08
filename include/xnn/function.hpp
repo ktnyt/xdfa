@@ -11,6 +11,7 @@ template <class T>
 class Function {
  public:
   virtual xt::xarray<T> operator()(const xt::xarray<T>&) = 0;
+  xt::xarray<T> operator()(xt::xarray<T>&& x) { return operator()(x); }
 };
 
 }  // namespace xnn

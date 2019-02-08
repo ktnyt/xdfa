@@ -31,7 +31,7 @@ class MaxPooling2D final : public Layer<float> {
           pw(pw),
           cover_all(cover_all) {}
 
-    xt::xarray<float> forward(xt::xarray<float> x) override {
+    xt::xarray<float> forward(const xt::xarray<float>& x) override {
       xt::xarray<float> y;
       xt::xarray<std::size_t> i;
       std::tie(y, i) = functions::pooling::max_pooling_2d(
@@ -40,7 +40,7 @@ class MaxPooling2D final : public Layer<float> {
       return y;
     }
 
-    xt::xarray<float> backward(xt::xarray<float> dy) override {
+    xt::xarray<float> backward(const xt::xarray<float>& dy) override {
       xt::xarray<std::size_t> i = queue.front();
       queue.pop();
       return functions::pooling::max_pooling_2d_grad(
