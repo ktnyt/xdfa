@@ -32,7 +32,7 @@ class Dataset {
     xt::random::shuffle(t, rng2);
   }
 
-  xt::xarray<T1> x_data() { return x; }
+  xt::xarray<T1>& x_data() { return x; }
   xt::xarray<T2>& t_data() { return t; }
 
   void for_each(
