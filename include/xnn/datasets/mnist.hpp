@@ -145,18 +145,16 @@ xt::xarray<T> read_train_labels(std::string path) {
 template <class T1, class T2>
 class Training final : public Dataset<T1, T2> {
  public:
-  Training(std::string path, std::size_t batchsize, bool flatten)
+  Training(std::string path, bool flatten)
       : Dataset<T1, T2>(
             internal::read_train_images<T1>(path, flatten),
-            internal::read_train_labels<T2>(path),
-            batchsize) {}
+            internal::read_train_labels<T2>(path)) {}
 
   template <class S>
-  Training(std::string path, std::size_t batchsize, bool flatten, S seed)
+  Training(std::string path, bool flatten, S seed)
       : Dataset<T1, T2>(
             internal::read_train_images<T1>(path, flatten),
             internal::read_train_labels<T2>(path),
-            batchsize,
             seed) {}
 };
 

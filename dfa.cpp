@@ -1,6 +1,7 @@
 #define XTENSOR_USE_XSIMD
 #include <iomanip>
 #include <iostream>
+#include <random>
 #include <vector>
 
 #include "xtensor/xarray.hpp"
@@ -14,8 +15,8 @@ namespace O = xnn::optimizers;
 namespace D = xnn::datasets;
 
 int main() {
-  std::size_t batchsize = 100;
-  D::mnist::Training<float, int> dataset("mnist", batchsize, true);
+  std::random_device rd;
+  D::mnist::Training<float, int> dataset("mnist", true, rd());
   dataset.x_data() /= 255.0f;
 
   std::size_t n_train = dataset.x_data().shape()[0];
@@ -24,6 +25,7 @@ int main() {
   std::size_t n_output = 10;
 
   std::size_t n_epochs = 20;
+  std::size_t batchsize = 100;
 
   L::activation::Sigmoid a0;
   L::connection::LinearFeedback l0(n_input, n_hidden, n_output, O::Adam(), a0);

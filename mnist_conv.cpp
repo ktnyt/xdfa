@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <random>
 #include <vector>
 
 #include "xtensor/xarray.hpp"
@@ -15,14 +16,15 @@ namespace O = xnn::optimizers;
 namespace D = xnn::datasets;
 
 int main() {
-  std::size_t batchsize = 100;
-  D::mnist::Training<float, int> dataset("mnist", batchsize, false);
+  std::random_device rd;
+  D::mnist::Training<float, int> dataset("mnist", false, rd());
   dataset.x_data() /= 255.0f;
 
   std::size_t n_train = dataset.x_data().shape()[0];
   std::size_t n_input = dataset.x_data().shape()[1];
 
   std::size_t n_epochs = 20;
+  std::size_t batchsize = 100;
 
   L::connection::Convolution2D conv1(1, 20, 5, 1, 0, O::Adam());
   L::activation::ReLU a1;

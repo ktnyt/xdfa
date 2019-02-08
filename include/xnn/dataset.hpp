@@ -23,9 +23,21 @@ class Dataset {
  public:
   Dataset(xt::xarray<T1>&& x, xt::xarray<T2>&& t) : x(x), t(t) {}
 
+  Dataset(std::pair<xt::xarray<T1>, xt::xarray<T2>>&& data)
+      : x(data.first), t(data.second) {}
+
   template <class S>
   Dataset(xt::xarray<T1>&& x, xt::xarray<T2>&& t, S seed)
       : x(x), t(t), rng1(seed), rng2(seed) {}
+
+  template <class S>
+  Dataset(std::pair<xt::xarray<T1>, xt::xarray<T2>>&& data, S seed)
+      : x(data.first), t(data.second), rng1(seed), rng2(seed) {}
+
+  Dataset(const Dataset&) = default;
+  Dataset(Dataset&&) = default;
+  Dataset& operator=(const Dataset&) = default;
+  Dataset& operator=(Dataset&&) = default;
 
   void shuffle() {
     xt::random::shuffle(x, rng1);

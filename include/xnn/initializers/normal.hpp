@@ -11,13 +11,13 @@
 namespace xnn {
 namespace initializers {
 
-class LeCunNormal final : public Initializer<float> {
+class LeCunNormal final {
   static constexpr float mean = 0.0;
 
  public:
   LeCunNormal(float scale = 1.0) : scale(scale) {}
 
-  xt::xarray<float> operator()(std::vector<std::size_t> shape) override {
+  xt::xarray<float> operator()(std::vector<std::size_t> shape) {
     std::size_t fan_in;
     std::size_t fan_out;
     std::tie(fan_in, fan_out) = get_fans(shape);
