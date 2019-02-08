@@ -14,20 +14,20 @@ namespace loss {
 
 class CrossEntropy final : public Function<float> {
  public:
-  CrossEntropy(xt::xarray<int>& t) : t(t) {}
+  CrossEntropy(const xt::xarray<int>& t) : t(t) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     auto idx = utils::to_index(t);
     xt::xarray<float> y = xt::index_view(x, idx);
     return xt::mean(-xt::log(y));
   }
 
  private:
-  xt::xarray<int>& t;
+  const xt::xarray<int>& t;
 };
 
 inline xt::xarray<float> cross_entropy(
-    xt::xarray<float> x, xt::xarray<int>& t) {
+    const xt::xarray<float>& x, const xt::xarray<int>& t) {
   return CrossEntropy(t)(x);
 }
 

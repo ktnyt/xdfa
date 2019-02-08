@@ -25,7 +25,7 @@ bool contains(C&& container, const T& value) {
 class Convolution2D final : public Function<float> {
  public:
   Convolution2D(
-      xt::xarray<float>& W,
+      const xt::xarray<float>& W,
       std::size_t sy,
       std::size_t sx,
       std::size_t ph,
@@ -34,13 +34,13 @@ class Convolution2D final : public Function<float> {
       : W(W), sy(sy), sx(sx), ph(ph), pw(pw), cover_all(cover_all) {}
 
   Convolution2D(
-      xt::xarray<float>& W,
+      const xt::xarray<float>& W,
       std::size_t s,
       std::size_t p,
       bool cover_all = false)
       : W(W), sy(s), sx(s), ph(p), pw(p), cover_all(cover_all) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     xt::xarray<float> col = utils::im2col(
         x,
         W.shape()[2],
@@ -56,7 +56,7 @@ class Convolution2D final : public Function<float> {
   }
 
  private:
-  xt::xarray<float>& W;
+  const xt::xarray<float>& W;
   std::size_t sy;
   std::size_t sx;
   std::size_t ph;
@@ -67,8 +67,8 @@ class Convolution2D final : public Function<float> {
 class Convolution2DGrad final : public Function<float> {
  public:
   Convolution2DGrad(
-      xt::xarray<float>& W,
-      xt::xarray<float>& dy,
+      const xt::xarray<float>& W,
+      const xt::xarray<float>& dy,
       std::size_t sy,
       std::size_t sx,
       std::size_t ph,
@@ -77,14 +77,14 @@ class Convolution2DGrad final : public Function<float> {
       : W(W), dy(dy), sy(sy), sx(sx), ph(ph), pw(pw), cover_all(cover_all) {}
 
   Convolution2DGrad(
-      xt::xarray<float>& W,
-      xt::xarray<float>& dy,
+      const xt::xarray<float>& W,
+      const xt::xarray<float>& dy,
       std::size_t s,
       std::size_t p,
       bool cover_all = false)
       : W(W), dy(dy), sy(s), sx(s), ph(p), pw(p), cover_all(cover_all) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     xt::xarray<float> col = utils::im2col(
         x,
         W.shape()[2],
@@ -99,8 +99,8 @@ class Convolution2DGrad final : public Function<float> {
   }
 
  private:
-  xt::xarray<float>& W;
-  xt::xarray<float>& dy;
+  const xt::xarray<float>& W;
+  const xt::xarray<float>& dy;
   std::size_t sy;
   std::size_t sx;
   std::size_t ph;
@@ -111,7 +111,7 @@ class Convolution2DGrad final : public Function<float> {
 class Deconvolution2D final : public Function<float> {
  public:
   Deconvolution2D(
-      xt::xarray<float>& W,
+      const xt::xarray<float>& W,
       std::size_t sy,
       std::size_t sx,
       std::size_t ph,
@@ -120,13 +120,13 @@ class Deconvolution2D final : public Function<float> {
       : W(W), sy(sy), sx(sx), ph(ph), pw(pw), cover_all(cover_all) {}
 
   Deconvolution2D(
-      xt::xarray<float>& W,
+      const xt::xarray<float>& W,
       std::size_t s,
       std::size_t p,
       bool cover_all = false)
       : W(W), sy(s), sx(s), ph(p), pw(p), cover_all(cover_all) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     xt::xarray<float> tmp = xt::linalg::tensordot(W, x, {0}, {1});
     xt::xarray<float> col = xt::transpose(tmp, {3, 0, 1, 2, 4, 5});
     std::size_t h;
@@ -148,7 +148,7 @@ class Deconvolution2D final : public Function<float> {
     return std::tuple<std::size_t, std::size_t>(out_h, out_w);
   }
 
-  xt::xarray<float>& W;
+  const xt::xarray<float>& W;
   std::size_t sy;
   std::size_t sx;
   std::size_t ph;
@@ -157,8 +157,8 @@ class Deconvolution2D final : public Function<float> {
 };
 
 xt::xarray<float> convolution_2d(
-    xt::xarray<float> x,
-    xt::xarray<float>& W,
+    const xt::xarray<float>& x,
+    const xt::xarray<float>& W,
     std::size_t sy,
     std::size_t sx,
     std::size_t ph,
@@ -168,8 +168,8 @@ xt::xarray<float> convolution_2d(
 }
 
 xt::xarray<float> convolution_2d(
-    xt::xarray<float> x,
-    xt::xarray<float>& W,
+    const xt::xarray<float>& x,
+    const xt::xarray<float>& W,
     std::size_t s,
     std::size_t p,
     bool cover_all = false) {
@@ -177,9 +177,9 @@ xt::xarray<float> convolution_2d(
 }
 
 xt::xarray<float> convolution_2d_grad(
-    xt::xarray<float> x,
-    xt::xarray<float>& W,
-    xt::xarray<float>& dy,
+    const xt::xarray<float>& x,
+    const xt::xarray<float>& W,
+    const xt::xarray<float>& dy,
     std::size_t sy,
     std::size_t sx,
     std::size_t ph,
@@ -189,9 +189,9 @@ xt::xarray<float> convolution_2d_grad(
 }
 
 xt::xarray<float> convolution_2d_grad(
-    xt::xarray<float> x,
-    xt::xarray<float>& W,
-    xt::xarray<float>& dy,
+    const xt::xarray<float>& x,
+    const xt::xarray<float>& W,
+    const xt::xarray<float>& dy,
     std::size_t s,
     std::size_t p,
     bool cover_all = false) {
@@ -199,8 +199,8 @@ xt::xarray<float> convolution_2d_grad(
 }
 
 xt::xarray<float> deconvolution_2d(
-    xt::xarray<float> x,
-    xt::xarray<float>& W,
+    const xt::xarray<float>& x,
+    const xt::xarray<float>& W,
     std::size_t sy,
     std::size_t sx,
     std::size_t ph,
@@ -210,8 +210,8 @@ xt::xarray<float> deconvolution_2d(
 }
 
 xt::xarray<float> deconvolution_2d(
-    xt::xarray<float> x,
-    xt::xarray<float>& W,
+    const xt::xarray<float>& x,
+    const xt::xarray<float>& W,
     std::size_t s,
     std::size_t p,
     bool cover_all = false) {

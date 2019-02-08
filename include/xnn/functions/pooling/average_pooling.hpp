@@ -26,7 +26,7 @@ class AveragePooling2D final : public Pooling2D<float> {
       bool return_indices = false)
       : Pooling2D<float>(kh, kw, sy, sx, ph, pw, cover_all, return_indices) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     xt::xarray<float> col = utils::im2col(x, kh, kw, sy, sx, ph, pw);
     return xt::mean(col, {2, 3});
   }
@@ -45,7 +45,7 @@ class AveragePooling2DGrad final : public Pooling2D<float> {
       bool return_indices = false)
       : Pooling2D<float>(kh, kw, sy, sx, ph, pw, cover_all, return_indices) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     std::size_t h;
     std::size_t w;
     std::tie(h, w) = calc_out_size(x);
@@ -69,7 +69,7 @@ class AveragePooling2DGrad final : public Pooling2D<float> {
 };
 
 inline xt::xarray<float> average_pooling_2d(
-    xt::xarray<float> x,
+    const xt::xarray<float>& x,
     std::size_t kh,
     std::size_t kw,
     std::size_t sy,
@@ -82,7 +82,7 @@ inline xt::xarray<float> average_pooling_2d(
 }
 
 inline xt::xarray<float> average_pooling_2d(
-    xt::xarray<float> x,
+    const xt::xarray<float>& x,
     std::size_t k,
     std::size_t s,
     std::size_t p,
@@ -92,7 +92,7 @@ inline xt::xarray<float> average_pooling_2d(
 }
 
 inline xt::xarray<float> average_pooling_2d_grad(
-    xt::xarray<float> x,
+    const xt::xarray<float>& x,
     std::size_t kh,
     std::size_t kw,
     std::size_t sy,
@@ -106,7 +106,7 @@ inline xt::xarray<float> average_pooling_2d_grad(
 }
 
 inline xt::xarray<float> average_pooling_2d_grad(
-    xt::xarray<float> x,
+    const xt::xarray<float>& x,
     std::size_t k,
     std::size_t s,
     std::size_t p,

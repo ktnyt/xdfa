@@ -12,18 +12,20 @@ namespace noise {
 
 class Dropout final : public Function<float> {
  public:
-  Dropout(xt::xarray<bool>& mask) : mask(mask) {}
+  Dropout(const xt::xarray<bool>& mask) : mask(mask) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
-    xt::masked_view(x, mask) = 0.0;
-    return x;
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
+    xt::xarray<float> y = x;
+    xt::masked_view(y, const_cast<xt::xarray<bool>&>(mask)) = 0.0f;
+    return y;
   }
 
  private:
-  xt::xarray<bool>& mask;
+  const xt::xarray<bool>& mask;
 };
 
-inline xt::xarray<float> dropout(xt::xarray<float> x, xt::xarray<bool>& mask) {
+inline xt::xarray<float> dropout(
+    const xt::xarray<float>& x, const xt::xarray<bool>& mask) {
   return Dropout(mask)(x);
 }
 

@@ -10,7 +10,7 @@ namespace xnn {
 template <class T>
 class Function {
  public:
-  virtual xt::xarray<T> operator()(xt::xarray<T>) = 0;
+  virtual xt::xarray<T> operator()(const xt::xarray<T>&) = 0;
 };
 
 }  // namespace xnn

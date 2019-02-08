@@ -12,21 +12,23 @@ namespace activation {
 
 class Sigmoid final : public Function<float> {
  public:
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     return xt::tanh(x * 0.5) * 0.5 + 0.5;
   }
 };
 
 class SigmoidGrad : public Function<float> {
  public:
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     return x * (1.0 - x);
   }
 };
 
-inline xt::xarray<float> sigmoid(xt::xarray<float> x) { return Sigmoid()(x); }
+inline xt::xarray<float> sigmoid(const xt::xarray<float>& x) {
+  return Sigmoid()(x);
+}
 
-inline xt::xarray<float> sigmoid_grad(xt::xarray<float> x) {
+inline xt::xarray<float> sigmoid_grad(const xt::xarray<float>& x) {
   return SigmoidGrad()(x);
 }
 

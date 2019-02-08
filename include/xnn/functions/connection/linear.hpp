@@ -14,53 +14,55 @@ namespace connection {
 
 class Linear final : public Function<float> {
  public:
-  Linear(xt::xarray<float>& W, xt::xarray<float>& b) : W(W), b(b) {}
+  Linear(const xt::xarray<float>& W, xt::xarray<float>& b) : W(W), b(b) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     return xt::linalg::dot(x, xt::transpose(W)) + b;
   }
 
  private:
-  xt::xarray<float>& W;
+  const xt::xarray<float>& W;
   xt::xarray<float>& b;
 };
 
 class LinearBack final : public Function<float> {
  public:
-  LinearBack(xt::xarray<float>& W) : W(W) {}
+  LinearBack(const xt::xarray<float>& W) : W(W) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     return xt::linalg::dot(x, W);
   }
 
  private:
-  xt::xarray<float>& W;
+  const xt::xarray<float>& W;
 };
 
 class LinearGrad final : public Function<float> {
  public:
-  LinearGrad(xt::xarray<float>& dy) : dy(dy) {}
+  LinearGrad(const xt::xarray<float> dy) : dy(dy) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     return xt::linalg::dot(xt::transpose(dy), x);
   }
 
  private:
-  xt::xarray<float>& dy;
+  const xt::xarray<float> dy;
 };
 
 inline xt::xarray<float> linear(
-    xt::xarray<float> x, xt::xarray<float>& W, xt::xarray<float>& b) {
+    const xt::xarray<float>& x,
+    const xt::xarray<float>& W,
+    xt::xarray<float>& b) {
   return Linear(W, b)(x);
 }
 
 inline xt::xarray<float> linear_back(
-    xt::xarray<float> x, xt::xarray<float>& W) {
+    const xt::xarray<float>& x, const xt::xarray<float>& W) {
   return LinearBack(W)(x);
 }
 
 inline xt::xarray<float> linear_grad(
-    xt::xarray<float> x, xt::xarray<float>& dy) {
+    const xt::xarray<float>& x, const xt::xarray<float> dy) {
   return LinearGrad(dy)(x);
 }
 

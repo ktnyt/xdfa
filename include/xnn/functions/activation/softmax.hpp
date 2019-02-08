@@ -12,15 +12,18 @@ namespace activation {
 
 class Softmax final : public Function<float> {
  public:
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
-    xt::transpose(x) -= xt::amax(x, {1});
-    xt::xarray<float> e = xt::exp(x);
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
+    xt::xarray<float> y = x;
+    xt::transpose(y) -= xt::amax(y, {1});
+    xt::xarray<float> e = xt::exp(y);
     xt::transpose(e) /= xt::sum(e, {1});
     return e;
   }
 };
 
-inline xt::xarray<float> softmax(xt::xarray<float> x) { return Softmax()(x); }
+inline xt::xarray<float> softmax(const xt::xarray<float>& x) {
+  return Softmax()(x);
+}
 
 }  // namespace activation
 }  // namespace functions

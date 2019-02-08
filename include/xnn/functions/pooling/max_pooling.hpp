@@ -34,7 +34,7 @@ class MaxPooling2D final : public Pooling2D<float> {
       bool return_indices = false)
       : Pooling2D<float>(kh, kw, sy, sx, ph, pw, cover_all, return_indices) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     xt::xarray<float> col =
         utils::im2col(x, kh, kw, sy, sx, ph, pw, lowest, cover_all);
     std::size_t n = col.shape()[0];
@@ -59,7 +59,7 @@ class MaxPooling2D final : public Pooling2D<float> {
 class MaxPooling2DGrad final : public Pooling2D<float> {
  public:
   MaxPooling2DGrad(
-      xt::xarray<std::size_t>& indices,
+      const xt::xarray<std::size_t>& indices,
       std::size_t kh,
       std::size_t kw,
       std::size_t sy,
@@ -71,7 +71,7 @@ class MaxPooling2DGrad final : public Pooling2D<float> {
       : Pooling2D<float>(kh, kw, sy, sx, ph, pw, cover_all, return_indices),
         indices(indices) {}
 
-  xt::xarray<float> operator()(xt::xarray<float> x) override {
+  xt::xarray<float> operator()(const xt::xarray<float>& x) override {
     std::size_t n = x.shape()[0];
     std::size_t c = x.shape()[1];
     std::size_t out_h = x.shape()[2];
@@ -105,11 +105,11 @@ class MaxPooling2DGrad final : public Pooling2D<float> {
     return std::tuple<std::size_t, std::size_t>(out_h, out_w);
   }
 
-  xt::xarray<std::size_t>& indices;
+  const xt::xarray<std::size_t>& indices;
 };
 
 inline std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
-    xt::xarray<float> x,
+    const xt::xarray<float>& x,
     std::size_t kh,
     std::size_t kw,
     std::size_t sy,
@@ -125,7 +125,7 @@ inline std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
 }
 
 inline std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
-    xt::xarray<float> x,
+    const xt::xarray<float>& x,
     std::size_t k,
     std::size_t s,
     std::size_t p,
@@ -135,8 +135,8 @@ inline std::pair<xt::xarray<float>, xt::xarray<std::size_t>> max_pooling_2d(
 }
 
 inline xt::xarray<float> max_pooling_2d_grad(
-    xt::xarray<float> x,
-    xt::xarray<std::size_t>& indices,
+    const xt::xarray<float>& x,
+    const xt::xarray<std::size_t>& indices,
     std::size_t kh,
     std::size_t kw,
     std::size_t sy,
@@ -150,8 +150,8 @@ inline xt::xarray<float> max_pooling_2d_grad(
 }
 
 inline xt::xarray<float> max_pooling_2d_grad(
-    xt::xarray<float> x,
-    xt::xarray<std::size_t>& indices,
+    const xt::xarray<float>& x,
+    const xt::xarray<std::size_t>& indices,
     std::size_t k,
     std::size_t s,
     std::size_t p,
