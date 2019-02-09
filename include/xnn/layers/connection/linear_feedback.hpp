@@ -6,6 +6,8 @@
 #include "xnn/layers/connection/linear.hpp"
 
 #include "xtensor-blas/xlinalg.hpp"
+#include "xtensor/xarray.hpp"
+#include "xtensor/xmanipulation.hpp"
 
 namespace xnn {
 namespace layers {
@@ -14,15 +16,21 @@ namespace internal {
 
 class linear_feedback {
  public:
-  linear_feedback(std::size_t n_input, std::size_t n_output)
-      : B(initializers::LeCunNormal()({n_input, n_output})) {}
+  linear_feedback(std::size_t n_output) : n_output(n_output), init(false) {}
 
   xt::xarray<float> operator()(const xt::xarray<float>& x) {
-    return xt::linalg::dot(x, B);
+    if (!init) {
+      B = initializers::LeCunNormal()({n_output, x.shape()[1]});
+      init = true;
+    }
+    return xt::linalg::dot(x, xt::transpose(B));
   };
 
  private:
   xt::xarray<float> B;
+
+  std::size_t n_output;
+  bool init;
 };
 
 }  // namespace internal
@@ -30,16 +38,11 @@ class linear_feedback {
 class LinearFeedback final : public FeedbackLayer {
  public:
   template <class A>
-  LinearFeedback(
-      std::size_t n_input,
-      std::size_t n_output,
-      std::size_t n_final,
-      Updater<float> rule,
-      A activation)
+  LinearFeedback(std::size_t n_output, Updater<float> rule, A activation)
       : FeedbackLayer(
-            Linear(n_input, n_output, rule),
+            Linear(n_output, rule),
             activation,
-            internal::linear_feedback(n_final, n_output)) {}
+            internal::linear_feedback(n_output)) {}
 };
 
 }  // namespace connection

@@ -17,7 +17,6 @@ class Convolution2D final : public Layer<float> {
   class Impl final : public Layer<float>::Impl {
    public:
     Impl(
-        std::size_t in_channels,
         std::size_t out_channels,
         std::size_t kh,
         std::size_t kw,
@@ -27,16 +26,23 @@ class Convolution2D final : public Layer<float> {
         std::size_t pw,
         Updater<float> rule,
         bool cover_all = false)
-        : W(initializers::LeCunNormal()({out_channels, in_channels, kh, kw})),
+        : out_channels(out_channels),
+          kh(kh),
+          kw(kw),
           sy(sy),
           sx(sx),
           ph(ph),
           pw(pw),
           rule(rule),
-          cover_all(cover_all) {}
+          cover_all(cover_all),
+          init(false) {}
 
     xt::xarray<float> forward(const xt::xarray<float>& x) override {
       forward_queue.push(x);
+      if (!init) {
+        W = initializers::LeCunNormal()({out_channels, x.shape()[1], kh, kw});
+        init = true;
+      }
       return functions::connection::convolution_2d(
           x, W, sy, sx, ph, pw, cover_all);
     }
@@ -59,6 +65,9 @@ class Convolution2D final : public Layer<float> {
 
    private:
     xt::xarray<float> W;
+    std::size_t out_channels;
+    std::size_t kh;
+    std::size_t kw;
     std::size_t sy;
     std::size_t sx;
     std::size_t ph;
@@ -67,13 +76,14 @@ class Convolution2D final : public Layer<float> {
 
     Updater<float> rule;
 
+    bool init;
+
     std::queue<xt::xarray<float>> forward_queue;
     std::queue<xt::xarray<float>> backward_queue;
   };
 
  public:
   Convolution2D(
-      std::size_t in_channels,
       std::size_t out_channels,
       std::size_t kh,
       std::size_t kw,
@@ -84,27 +94,16 @@ class Convolution2D final : public Layer<float> {
       Updater<float> rule,
       bool cover_all = false)
       : Layer<float>(std::make_shared<Impl>(
-            in_channels,
-            out_channels,
-            kh,
-            kw,
-            sy,
-            sx,
-            ph,
-            pw,
-            rule,
-            cover_all)) {}
+            out_channels, kh, kw, sy, sx, ph, pw, rule, cover_all)) {}
 
   Convolution2D(
-      std::size_t in_channels,
       std::size_t out_channels,
       std::size_t k,
       std::size_t s,
       std::size_t p,
       Updater<float> rule,
       bool cover_all = false)
-      : Convolution2D(
-            in_channels, out_channels, k, k, s, s, p, p, rule, cover_all) {}
+      : Convolution2D(out_channels, k, k, s, s, p, p, rule, cover_all) {}
 };
 
 }  // namespace connection

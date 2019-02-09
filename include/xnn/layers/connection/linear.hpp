@@ -22,13 +22,15 @@ namespace connection {
 class Linear final : public Layer<float> {
   class Impl final : public Layer<float>::Impl {
    public:
-    Impl(std::size_t n_input, std::size_t n_output, Updater<float> rule)
-        : W(initializers::LeCunNormal()({n_output, n_input})),
-          b(xt::zeros<float>({n_output})),
-          rule(rule) {}
+    Impl(std::size_t n_output, Updater<float> rule)
+        : b(xt::zeros<float>({n_output})), rule(rule), init(false) {}
 
     xt::xarray<float> forward(const xt::xarray<float>& x) override {
       forward_queue.push(x);
+      if (!init) {
+        W = initializers::LeCunNormal()({b.size(), x.shape()[1]});
+        init = true;
+      }
       return functions::connection::linear(x, W, b);
     }
 
@@ -53,14 +55,15 @@ class Linear final : public Layer<float> {
     xt::xarray<float> b;
 
     Updater<float> rule;
+    bool init;
 
     std::queue<xt::xarray<float>> forward_queue;
     std::queue<xt::xarray<float>> backward_queue;
   };
 
  public:
-  Linear(std::size_t n_input, std::size_t n_output, Updater<float> rule)
-      : Layer<float>(std::make_shared<Impl>(n_input, n_output, rule)) {}
+  Linear(std::size_t n_output, Updater<float> rule)
+      : Layer<float>(std::make_shared<Impl>(n_output, rule)) {}
 };
 
 }  // namespace connection

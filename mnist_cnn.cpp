@@ -33,16 +33,16 @@ int main() {
   std::size_t n_epochs = 20;
   std::size_t batchsize = 100;
 
-  Convolution2D conv1(1, 20, 5, 1, 0, O::Adam());
+  Convolution2D conv1(20, 5, 1, 0, O::Adam());
   ReLU a1;
   MaxPooling2D pool1(2, 2, 0);
-  Convolution2D conv2(20, 50, 5, 1, 0, O::Adam());
+  Convolution2D conv2(50, 5, 1, 0, O::Adam());
   ReLU a2;
   MaxPooling2D pool2(2, 2, 0);
   Flatten<float> flat;
-  Linear fc1(4 * 4 * 50, 500, O::Adam());
+  Linear fc1(500, O::Adam());
   ReLU a3;
-  Linear fc2(500, 10, O::Adam());
+  Linear fc2(10, O::Adam());
 
   Serial<float> network(conv1, a1, pool1, conv2, a2, pool2, flat, fc1, a3, fc2);
 

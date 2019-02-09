@@ -30,13 +30,12 @@ int main() {
   std::size_t n_epochs = 20;
   std::size_t batchsize = 100;
 
-  std::size_t n_input = dataset.leading();
   std::size_t n_hidden = 1000;
   std::size_t n_output = 10;
 
   Sigmoid a0;
-  LinearFeedback l0(n_input, n_hidden, n_output, O::Adam(), a0);
-  Linear l1(n_hidden, n_output, O::Adam());
+  LinearFeedback l0(n_hidden, O::Adam(), a0);
+  Linear l1(n_output, O::Adam());
   SoftmaxCrossEntropy error;
   DirectFeedback<float> network(l0, l1);
 

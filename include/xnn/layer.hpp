@@ -28,19 +28,21 @@ class Layer {
 
   template <class U>
   Layer(std::shared_ptr<U> ptr) : ptr(std::static_pointer_cast<Impl>(ptr)) {}
+
   xt::xarray<T> operator()(const xt::xarray<T>& x) { return forward(x); }
-  xt::xarray<T> forward(const xt::xarray<T>& x) {
-    return ptr->forward(x);
-  }
-  xt::xarray<T> forward(xt::xarray<T>&& x) {
+
+  xt::xarray<T> forward(const xt::xarray<T>& x) { return ptr->forward(x); }
+
+  virtual xt::xarray<T> forward(xt::xarray<T>&& x) {
     return ptr->forward(std::forward<xt::xarray<T>>(x));
   }
-  xt::xarray<T> backward(const xt::xarray<T>& dy) {
-    return ptr->backward(dy);
-  }
-  xt::xarray<T> backward(xt::xarray<T>&& x) {
+
+  xt::xarray<T> backward(const xt::xarray<T>& dy) { return ptr->backward(dy); }
+
+  virtual xt::xarray<T> backward(xt::xarray<T>&& x) {
     return ptr->backward(std::forward<xt::xarray<T>>(x));
   }
+
   void update() { ptr->update(); };
 
   std::shared_ptr<Impl> get() const { return ptr; }
