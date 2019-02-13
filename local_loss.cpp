@@ -88,12 +88,9 @@ class LocalLossConv {
     xt::xarray<float> Rh = similarity_matrix(sh);
     xt::xarray<float> Ry = similarity_matrix(matrixify(y, n_class));
     sim_loss.with(Rh)(Ry);
-    print_shape(sh);
 
     auto sim_grads = beta * sim_loss.grads();
     auto pred_grads = (1.0 - beta) * pred_loss.grads();
-    print_shape(sim_grads);
-    print_shape(pred_grads);
     xt::xarray<float> grads = sim_grads + pred_grads;
 
     f.backward(pred.backward(grads));
