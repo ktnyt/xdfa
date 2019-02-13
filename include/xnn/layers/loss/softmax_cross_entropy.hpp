@@ -19,7 +19,7 @@ namespace loss {
 class SoftmaxCrossEntropy : public Layer<float> {
   class Impl final : public Layer<float>::Impl {
    public:
-    void set_labels(xt::xarray<int> t) { labels = t; }
+    void set_labels(xt::xarray<int>& t) { labels = t; }
 
     xt::xarray<float> forward(const xt::xarray<float>& x) override {
       memory = functions::activation::softmax(x);
@@ -41,7 +41,7 @@ class SoftmaxCrossEntropy : public Layer<float> {
  public:
   SoftmaxCrossEntropy() : Layer<float>(std::make_shared<Impl>()) {}
 
-  SoftmaxCrossEntropy& with(xt::xarray<int> t) {
+  SoftmaxCrossEntropy& with(xt::xarray<int>& t) {
     auto impl = std::dynamic_pointer_cast<Impl>(ptr);
     impl->set_labels(t);
     return *this;
